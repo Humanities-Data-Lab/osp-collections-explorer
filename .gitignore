@@ -1,0 +1,6 @@
+site/
+build/dataset.json
+build/validation.json
+build/raw/chunks/
+__pycache__/
+.DS_Store
