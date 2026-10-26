@@ -59,23 +59,27 @@ def syntax_table():
     return f'<table><thead><tr><th scope="col">Type</th><th scope="col">It finds</th></tr></thead><tbody>{rows}</tbody></table>'
 
 
+XML_BAD = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
+
+
 def page(title, body, depth=0, current="", description="", extra_head="", scripts=""):
+    """Every page is written as well-formed XHTML5 so that staticSearch can index it."""
     r = rel(depth)
-    nav = [("index.html", "Explore", "explore"), ("volumes/index.html", "Volumes", "volumes"),
+    nav = [("index.html", "Explore", "explore"), ("items/search.html", "Search", "search"), ("volumes/index.html", "Volumes", "volumes"),
            ("methodology.html", "Methodology", "methodology"), ("about.html", "About, data and citation", "about")]
     cur = ' aria-current="page"'
     links = "".join(
         f'<li><a href="{r}{h}"{cur if c == current else ""}>{e(t)}</a></li>' for h, t, c in nav)
-    return f'''<!doctype html>
-<html lang="en">
+    out = f'''<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
 <title>{e(title)}</title>
-<meta name="description" content="{e(description or 'Search and visualize the annotated bibliographies of the Open Scholarship Press Collections.')}">
-<meta name="generator" content="osp-explorer {VERSION}">
-<style>{CSS}</style>{extra_head}
+<meta name="description" content="{e(description or 'Search and visualize the annotated bibliographies of the Open Scholarship Press Collections.')}" />
+<meta name="generator" content="osp-explorer {VERSION}" />
+<style>/*<![CDATA[*/{CSS}/*]]>*/</style>{extra_head}
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
@@ -100,9 +104,10 @@ The <a href="{r}data/items.json">data</a> are included with the site. See <a hre
 </body>
 </html>
 '''
+    return XML_BAD.sub("", out)
 
 
-HERE_JS = '<script>document.querySelectorAll(".here").forEach(function(n){n.textContent=location.href.split("#")[0];});</script>'
+HERE_JS = '<script>//<![CDATA[\ndocument.querySelectorAll(".here").forEach(function(n){n.textContent=location.href.split("#")[0];});\n//]]></script>'
 
 
 def cite_block(depth, label, ident=""):
@@ -254,6 +259,23 @@ def volume_pages():
 
 
 # ---------- items ----------
+def ss_meta(it):
+    """Filter and title metadata read by staticSearch (class names fixed by that tool)."""
+    def m(name, cls, value):
+        return f'<meta name="{e(name)}" class="staticSearch_{cls}" content="{e(value)}" />'
+    out = [m("Title", "docTitle", it["title"] or it["citation"][:120]),
+           m("Sort", "docSortKey", ((it["authors"] or it["editors"] or [""])[0] + " " + str(it["year"] or 9999) + " " + it["title"]).lower())]
+    out += [m("Volume", "desc", v) for v in it["volumes"]]
+    out += [m("Topic", "desc", t) for t in it["topics"]]
+    out.append(m("Type", "desc", it["kind"]))
+    out.append(m("Has annotation", "bool", "true" if it["annotation"] else "false"))
+    if it["year"]:
+        out.append(m("Year", "date", str(it["year"])))
+    out += [m("Author", "feat", a) for a in it["authors"]]
+    out += [m("Editor", "feat", a) for a in it["editors"] + it["container_editors"]]
+    return "\n" + "\n".join(out)
+
+
 def item_pages():
     os.makedirs(os.path.join(SITE, "items"), exist_ok=True)
     roots = {v["slug"]: v for v in VOLS}
@@ -291,12 +313,23 @@ def item_pages():
         ann = ("<p>" + e(it["annotation"]) + "</p>") if it["annotation"] else "<p>The source volume gives no annotation for this entry.</p>"
         body = (f'<p><a href="../index.html">← Explore all items</a></p><h1>{e(it["title"] or it["citation"])}</h1>'
                 f'<p class="lede">{e(short_cit(it))}</p><dl class="facts">{dl}</dl>'
-                f'<h2>Annotation</h2><div class="prose">{ann}</div>'
+                f'<h2>Annotation</h2><div id="annotation" class="prose">{ann}</div>'
                 f'<h2>Where it appears</h2><ul class="prose">{places}</ul>{variants}'
                 f'<h2>Citation as listed</h2><p class="prose">{e(it["citation"])}</p>'
                 f'{cite_block(1, "Record: " + (it["title"] or "untitled") + ".", it["id"])}')
         with open(os.path.join(SITE, "items", it["id"] + ".html"), "w", encoding="utf-8") as f:
-            f.write(page(f'{it["title"] or "Record"} · {TITLE}', body, 1, "", scripts=HERE_JS))
+            f.write(page(f'{it["title"] or "Record"} · {TITLE}', body, 1, "", extra_head=ss_meta(it), scripts=HERE_JS))
+
+
+# ---------- search (staticSearch) ----------
+def search_page():
+    body = f"""<h1>Search the annotations</h1>
+<p class="lede">Full-text search across the {N:,} item records, with stemming, phrase matching and filters. It runs entirely in your browser from index files shipped with this site.</p>
+<div class="prose"><p>Type words to find items whose title, authors or annotation contain them; word endings are matched, so "repositories" also finds "repository". Put a phrase in double quotes, and use * as a wildcard. The filters on the left of the form narrow the results by volume, topic, type, year, author or editor. Each result links to its record page.</p>
+<p>This page uses <a href="https://endings.uvic.ca/staticSearch/">staticSearch</a>, the search tool of the Endings project. To chart or browse the collection by facets, use <a href="../index.html">Explore</a>. Without JavaScript, browse the <a href="../volumes/index.html">volume pages</a>.</p></div>
+<div id="staticSearch"></div>"""
+    with open(os.path.join(SITE, "items", "search.html"), "w", encoding="utf-8") as f:
+        f.write(page(f"Search · {TITLE}", body, 1, "search"))
 
 
 # ---------- about ----------
@@ -421,6 +454,9 @@ def methodology_page():
 {table(["Volume", "Entries parsed", "Marker symbols in legend"], vol_rows)}
 <h2 id="search">11. How search and filters decide</h2>
 <ul><li>All matching is done on text with accents removed and capitals ignored, and checks whether the text contains the typed letters, so <code>commons</code> also finds "commonsense".</li><li>Words typed together must all match; <code>OR</code> lets either neighbouring term match; a leading minus excludes.</li><li>A search with no field looks in title, authors, venue, annotation, topics, and chapter and section names. A field prefix looks only in that field.</li><li>Relevance score: each occurrence in the title counts 5, in the authors 4, in the section path 2, and in the annotation 1 (up to 5). Items with equal scores sort by author, then year. Without a search, the default order is author A to Z.</li><li>Within one filter group (for example two volumes) an item needs to match any selection; across groups it needs to match every group. The counts beside each option show what the result would be if that option alone were added to the other current filters.</li><li>Searching and filtering happen in your browser; nothing is sent anywhere.</li></ul>
+<h3 id="searchpage">The Search page (staticSearch)</h3>
+<p>The Search page is a different engine from the keyword box on Explore, and the two can return different results on purpose. It uses staticSearch, the search tool of the Endings project (release 2.0.3, checked out at a fixed commit that the build verifies). At build time staticSearch reads every item page, builds an index of word stems (English Porter2 stemming, with a stop-word list) as many small data files, and ships them with the site. Your browser fetches only the index files for the words you type; no server or database is involved.</p>
+<ul><li>It indexes the text of each item page, but not the page header, navigation or footer. Words in the item title count three times as much as other words.</li><li>It matches word forms ("repositories" finds "repository"), exact phrases in double quotes, and wildcards. The Explore keyword box instead matches the typed letters inside words.</li><li>Its filters come from labels written into each item page: Volume, Topic and Type (choose any), Has annotation (yes or no), Year (a range), and Author and Editor (type a name). These carry the same information and the same author and editor separation as the rest of the site (sections 5, 9 and 10).</li><li>Result snippets show the words around each match. Items are ordered by a relevance score from staticSearch, then by author and year.</li><li>For result links staticSearch may add a short <code>?ssMark=</code> marker so the matched word can be highlighted. This is the one place a query string can appear; every item page works without it.</li></ul>
 <h2 id="charts">12. What the charts count</h2>
 <ul><li><strong>Items by year</strong>: one column per year from 1990 and one for everything earlier. Items with no year ({n_nodate} in the whole collection) are left out of the columns, and the chart says how many were left out.</li><li><strong>Items by volume</strong>: placements; an item in two volumes counts in both.</li><li><strong>Most frequent authors</strong>: the twelve names that appear on most items in the current results.</li><li><strong>Topics across volumes</strong>: items per topic and volume (section 9), shaded in proportion to the largest cell.</li><li><strong>Shared items</strong>: items present in both of two volumes; the diagonal is each volume's total.</li></ul>
 <p>All charts describe the current search and filters, not the whole collection. The bibliography reflects what the editors chose to annotate, so counts describe this corpus, not the research literature at large. A rise in recent years reflects when the volumes were compiled as well as publishing trends.</p>
@@ -445,6 +481,7 @@ def main():
         f.write(index_page())
     volume_pages()
     item_pages()
+    search_page()
     about_page()
     methodology_page()
     open(os.path.join(SITE, ".nojekyll"), "w").close()

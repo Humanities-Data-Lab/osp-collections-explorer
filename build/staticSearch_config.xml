@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- staticSearch v2 configuration. Paths in this file are relative to this file,
+     except stopwords, dictionary and stemmer, which come from the staticSearch checkout. -->
+<config xmlns="http://hcmc.uvic.ca/ns/staticSearch" version="2">
+  <params>
+    <!-- The folder holding the search page (site/items) is the collection that gets indexed. -->
+    <searchPage file="../site/items/search.html"/>
+    <index recurse="false"/>
+    <stopwords file="stopwords/stopwords_en.txt"/>
+    <dictionary file="dicts/words_en.txt"/>
+    <stemmer dir="en"/>
+    <tokenizer minWordLength="2"/>
+    <createContexts create="true" phrasalSearch="true" wildcardSearch="true"
+                    maxKwicLength="15" maxKwicsToHarvest="5" kwicTruncateString="…"/>
+    <results resultsPerPage="25" maxKwicsToShow="3" maxResults="2000"/>
+    <output dir="staticSearch"/>
+  </params>
+  <rules>
+    <!-- Navigation, header and footer repeat on every page and are not indexed. -->
+    <rule weight="0" match="script | style | header | footer | nav"/>
+    <rule weight="3" match="h1"/>
+  </rules>
+</config>

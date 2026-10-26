@@ -30,12 +30,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Ensure Apache Ant
+        run: command -v ant || sudo apt-get install -y ant
       - name: Build site
         run: |
           if [ "${{ inputs.refresh }}" = "true" ]; then
-            python3 -I build/build.py --refresh
+            python3 -I build/build.py --require-search --refresh
           else
-            python3 -I build/build.py
+            python3 -I build/build.py --require-search
           fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

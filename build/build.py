@@ -1,4 +1,4 @@
-"""Build the site. Usage: python3 build/build.py [--refresh]
+"""Build the site. Usage: python3 build/build.py [--refresh] [--require-search]
 
 --refresh re-fetches the wiki text (network); the default uses the committed
 build/raw/pages.json so a release can be rebuilt identically.
@@ -15,6 +15,20 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 def sig(a):
     return "|".join([a["type"], str(a.get("volume", a.get("page", ""))), str(a.get("text", ""))[:60]])
+
+
+def check_xhtml():
+    """staticSearch reads the item pages as XML, so every page it indexes must be well-formed."""
+    import glob
+    import xml.etree.ElementTree as ET
+    bad = []
+    for path in glob.glob(os.path.join(HERE, "..", "site", "items", "*.html")):
+        try:
+            ET.parse(path)
+        except ET.ParseError as e:
+            bad.append((os.path.basename(path), str(e)))
+    if bad:
+        sys.exit("Build stopped: pages that are not well-formed XHTML: " + repr(bad[:5]))
 
 
 def run(script):
@@ -37,3 +51,5 @@ if new and "--accept-anomalies" not in sys.argv:
 if "--accept-anomalies" in sys.argv:
     json.dump(sorted(found), open(known_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 run("render.py")
+check_xhtml()
+subprocess.run([sys.executable, os.path.join(HERE, "build_search.py")] + (["--require"] if "--require-search" in sys.argv else []), check=True)
