@@ -41,7 +41,8 @@ SYNTAX = [
     ("-facebook", "A minus sign excludes items containing the word."),
     ('"digital commons"', "Exact phrase."),
     ("reposit*  wom?n", "Wildcards: * stands for any letters, ? for one letter, and [ae] for either letter."),
-    ("Filters", "The boxes below the search field narrow the results by volume, topic, type, year, author and editor. Accents and capitals are ignored."),
+    ("Schöpfel", "Capitals are ignored but accents are not. Search with the accent as it is written in the record, and try both spellings for names such as Schöpfel and Schopfel."),
+    ("Filters", "The boxes below the search field narrow the results by volume, topic, type, year, author and editor."),
 ]
 
 
