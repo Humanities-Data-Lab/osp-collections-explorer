@@ -1,0 +1,443 @@
+[
+ {
+  "match": "https://jitp.commons.gc.cuny.edu/",
+  "authors": [
+   "Journal of Interactive Technology and Pedagogy"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://cuny.manifoldapp.org/journals/jitp",
+  "checked": "2026-10-26",
+  "note": "The journal's own page blocked automated access (403). The journal is published by the CUNY Graduate Center, per its entry on CUNY's Manifold platform."
+ },
+ {
+  "match": "https://apo.org.au/node/69771",
+  "authors": [
+   "League of European Research Universities (LERU)",
+   "Association of American Universities (AAU)",
+   "China 9 (C9)",
+   "Australian Group of Eight (Go8)",
+   "Association of East Asia Research Universities (AEARU)",
+   "Russell Group",
+   "RU 11 (Japan)",
+   "U15 Group of Canadian Research Universities"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://cossa.org/leiden-statement-social-sciences-and-humanities-indispensable-to-understanding-and-addressing-global-challenges/",
+  "checked": "2026-10-26",
+  "note": "The linked page blocked automated access (403). The statement names no individual author; the eight university associations that issued it are listed in a copy published by COSSA."
+ },
+ {
+  "match": "http://knowledgegap.org/",
+  "authors": [
+   "The Knowledge G.A.P."
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "http://knowledgegap.org/",
+  "checked": "2026-10-26",
+  "note": "The site's copyright line and site name give the project; the team is hosted at the Centre for Critical Development Studies, University of Toronto Scarborough."
+ },
+ {
+  "match": "https://imaginingamerica.org/what-we-do/collaborative-research/assessing-the-practices-of-publicly-engaged-scholars/",
+  "authors": [
+   "Imagining America"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://imaginingamerica.org/what-we-do/collaborative-research/assessing-the-practices-of-publicly-engaged-scholars/",
+  "checked": "2026-10-26",
+  "note": "The page describes the work as a collective of Imagining America (Assessing the Practices of Public Scholarship); no individual author is named."
+ },
+ {
+  "match": "https://blogs.ubc.ca/traditionalknowledgetechnology/revaluation-of-indigenous-cultures/what-is-indigenous-traditional-knowledge/",
+  "authors": [
+   "Traditional Knowledge and Technology"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://blogs.ubc.ca/traditionalknowledgetechnology/revaluation-of-indigenous-cultures/what-is-indigenous-traditional-knowledge/",
+  "checked": "2026-10-26",
+  "note": "A blog hosted on UBC Blogs; the page names no individual author."
+ },
+ {
+  "match": "https://crc-iae.com/?lang=en",
+  "authors": [
+   "Canada Research Chair on Epistemic Injustice and Agency"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://murphy.tulane.edu/people/amandine-catala",
+  "checked": "2026-10-26",
+  "note": "The site did not load. The chair is named in the title; secondary pages give its holder as Amandine Catala (Université du Québec à Montréal), which was not confirmed on the site itself."
+ },
+ {
+  "match": "https://research.kent.ac.uk/global-science-and-epistemic-justice/",
+  "authors": [
+   "Centre for Global Science and Epistemic Justice"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://research.kent.ac.uk/global-science-and-epistemic-justice/",
+  "checked": "2026-10-26",
+  "note": "Site name and structured publisher data on the page; the centre is at the University of Kent."
+ },
+ {
+  "match": "https://www.communityresearchcanada.ca",
+  "authors": [
+   "Community-Based Research Canada"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://www.communityresearchcanada.ca",
+  "checked": "2026-10-26",
+  "note": "Page title and site name (CBRCanada)."
+ },
+ {
+  "match": "https://indigenizinglearning.educ.ubc.ca/content/",
+  "authors": [
+   "Decolonizing Teaching, Indigenizing Learning"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://indigenizinglearning.educ.ubc.ca/",
+  "checked": "2026-10-26",
+  "note": "The cited address no longer loads (404). The same bundles are on the UBC site of that name, which is maintained by Shannon Leddy and Kiera Brant-Birioukov and credits the Indigenous educators who wrote each bundle."
+ },
+ {
+  "match": "https://docs.google.com/document/d/1hLbQ7MriJplWlh5IzLZKx56W6b8EP1FBL_GfK5LIzQE/edit?usp=embed_facebook",
+  "authors": [
+   "Sharon Farnel",
+   "Ian Bigelow",
+   "Kayla Lar-Son",
+   "Debbie Feisst",
+   "Anne Carr-Wiggin",
+   "Denise Koufogiannakis"
+  ],
+  "contributors": [],
+  "basis": "person-named",
+  "evidence": "https://docs.google.com/document/d/1hLbQ7MriJplWlh5IzLZKx56W6b8EP1FBL_GfK5LIzQE/edit?usp=embed_facebook",
+  "checked": "2026-10-26",
+  "note": "The document is the Decolonizing Description Working Group's final report (University of Alberta Libraries). It lists these six members and says it is a collaborative effort of all members; Sharon Farnel chaired."
+ },
+ {
+  "match": "https://epistemic-injustice-reasons-agency.weebly.com/",
+  "authors": [
+   "Epistemic Injustice, Reasons, Agency"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://epistemic-injustice-reasons-agency.weebly.com/",
+  "checked": "2026-10-26",
+  "note": "The project's own site. Its principal investigators are Veli Mitova (University of Johannesburg) and Lubomira Radoilska (University of Kent), but the page does not credit them as authors of the site."
+ },
+ {
+  "match": "https://futures.clir.org/flame/",
+  "authors": [
+   "Jennifer Grayburn",
+   "Petrouchka Moïse",
+   "Ece Turnator",
+   "Laura Wilson"
+  ],
+  "contributors": [
+   "Keith Smith"
+  ],
+  "basis": "person-named",
+  "evidence": "https://futures.clir.org/flame/",
+  "checked": "2026-10-26",
+  "note": "Named under the title of the podcast series (a CLIR Curated Futures project); Keith Smith is credited as audio engineer. The page does not label the four as creators, so their role is read from their position under the title."
+ },
+ {
+  "match": "https://www.firstvoices.com/home",
+  "authors": [
+   "First Peoples' Cultural Council"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://circa.cs.ualberta.ca/index.php/CIRCA:First_Voices",
+  "checked": "2026-10-26",
+  "note": "The page shows no text without scripts. Published descriptions state that FirstVoices is run by the First Peoples' Cultural Council of British Columbia."
+ },
+ {
+  "match": "https://icca.art/",
+  "authors": [
+   "Indigenous Curatorial Collective / Collectif des commissaires autochtones"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://icca.art/",
+  "checked": "2026-10-26",
+  "note": "Page title."
+ },
+ {
+  "match": "https://indigenousfutures.net/",
+  "authors": [
+   "Initiative for Indigenous Futures"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://indigenousfutures.net/",
+  "checked": "2026-10-26",
+  "note": "Page title and copyright line."
+ },
+ {
+  "match": "https://icer.ok.ubc.ca/",
+  "authors": [
+   "Institute for Community Engaged Research"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://icer.ok.ubc.ca/",
+  "checked": "2026-10-26",
+  "note": "Page title; the institute is at UBC's Okanagan campus."
+ },
+ {
+  "match": "https://indigenouskin.wordpress.com",
+  "authors": [
+   "K.I.N. Knowledge in Indigenous Networks"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://indigenouskin.wordpress.com",
+  "checked": "2026-10-26",
+  "note": "Site name. Posts on the site carry individual bylines, but this address is the site's home page."
+ },
+ {
+  "match": "https://localcontexts.org/",
+  "authors": [
+   "Local Contexts"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://localcontexts.org/",
+  "checked": "2026-10-26",
+  "note": "The page's author meta tag and copyright line."
+ },
+ {
+  "match": "http://ocsdnet.org/",
+  "authors": [
+   "Open and Collaborative Science in Development Network (OCSDNet)"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://force11.org/post/introducing-the-open-and-collaborative-science-in-development-network-ocsdnet/",
+  "checked": "2026-10-26",
+  "note": "The site returned a server error. The network's name is given in its announcement and other published descriptions."
+ },
+ {
+  "match": "https://www.openlibhums.org/news/314/",
+  "authors": [
+   "Paula Clemente Vega"
+  ],
+  "contributors": [],
+  "basis": "person-named",
+  "evidence": "https://www.openlibhums.org/news/tag/Interview/?page=2",
+  "checked": "2026-10-26",
+  "note": "The article page blocked automated access. The Open Library of Humanities news listing shows the entry as posted by Paula Clemente Vega; whether that person conducted the interview was not confirmed."
+ },
+ {
+  "match": "https://www.operas-eu.org/",
+  "authors": [
+   "OPERAS"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://www.operas-eu.org/",
+  "checked": "2026-10-26",
+  "note": "Page title and copyright line."
+ },
+ {
+  "match": "https://royalbcmuseum.bc.ca/indigenous/repatriation-handbook",
+  "authors": [
+   "Royal BC Museum"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://royalbcmuseum.bc.ca/indigenous/repatriation-handbook",
+  "checked": "2026-10-26",
+  "note": "Site name (Royal British Columbia Museum); the handbook is a museum publication."
+ },
+ {
+  "match": "https://open.library.ubc.ca/cIRcle/collections/ubccommunityandpartnerspublicati/52387/items/1.0377565",
+  "authors": [
+   "Louise Boilevin",
+   "Jules Chapman",
+   "Lindsay Deane",
+   "Caroline Doerksen",
+   "Greg Fresz",
+   "DJ Joe",
+   "Nicholas Leech-Crier",
+   "Samona Marsh",
+   "Jim McLeod",
+   "Scott Neufeld",
+   "Steven Pham",
+   "Laura Shaver",
+   "Patrick Smith",
+   "Martin Steward",
+   "Dean Wilson",
+   "Phoenix Winter"
+  ],
+  "contributors": [],
+  "basis": "person-named",
+  "evidence": "https://unequalcities.org/2019/05/02/research-101-a-manifesto-for-ethical-research-in-the-downtown-east-side/",
+  "checked": "2026-10-26",
+  "note": "The cited UBC address blocked automated access. The same manifesto, on a page of the Canadian Observatory on Homelessness, lists these sixteen authors."
+ },
+ {
+  "match": "https://uakn.org/about-us/",
+  "authors": [
+   "Urban Aboriginal Knowledge Network"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://uakn.org/about-us/",
+  "checked": "2026-10-26",
+  "note": "Copyright line (2014)."
+ },
+ {
+  "match": "https://www.africanbookscollective.com/about-us",
+  "authors": [
+   "African Books Collective"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://www.africanbookscollective.com/",
+  "checked": "2026-10-26",
+  "note": "The cited address no longer loads (404); the organisation's home page shows its name in the header and footer."
+ },
+ {
+  "match": "https://africarxiv.pubpub.org/",
+  "authors": [
+   "AfricArXiv"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://africarxiv.pubpub.org/",
+  "checked": "2026-10-26",
+  "note": "The site blocked automated access (403). The name is the one the citation gives for the site."
+ },
+ {
+  "match": "http://amelica.org/",
+  "authors": [
+   "AmeliCA"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "http://amelica.org/",
+  "checked": "2026-10-26",
+  "note": "Publisher named in the page's structured data."
+ },
+ {
+  "match": "https://www.collaborativeindigenousresearch.com",
+  "authors": [
+   "Collaborative Indigenous Research Digital Garden"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://www.collaborativeindigenousresearch.com",
+  "checked": "2026-10-26",
+  "note": "The page names the project, led by Eve Tuck and graduate researchers in the Tkaronto CIRCLE Lab at OISE, University of Toronto."
+ },
+ {
+  "match": "https://www.erudit.org/en/",
+  "authors": [
+   "Érudit"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://www.erudit.org/en/",
+  "checked": "2026-10-26",
+  "note": "Site name and copyright line (Érudit Consortium)."
+ },
+ {
+  "match": "https://doaj.org/",
+  "authors": [
+   "Directory of Open Access Journals (DOAJ)"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://doaj.org/",
+  "checked": "2026-10-26",
+  "note": "The site blocked automated access (403). The name is the one in the cited title."
+ },
+ {
+  "match": "https://fnigc.ca/",
+  "authors": [
+   "The First Nations Information Governance Centre"
+  ],
+  "contributors": [],
+  "basis": "organisation-other",
+  "evidence": "https://fnigc.ca/",
+  "checked": "2026-10-26",
+  "note": "The site blocked automated access (403). The name is the one the citation gives for the site."
+ },
+ {
+  "match": "https://www.alliance-editeurs.org/?lang=en",
+  "authors": [
+   "International Alliance of Independent Publishers"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://www.alliance-editeurs.org/?lang=en",
+  "checked": "2026-10-26",
+  "note": "Page title. The page's author meta tag names its web developer, which is not the publisher."
+ },
+ {
+  "match": "https://www.lareferencia.info/es/",
+  "authors": [
+   "LA Referencia"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://www.lareferencia.info/es/",
+  "checked": "2026-10-26",
+  "note": "Page text gives the full name as LA Referencia, Red Latinoamericana y de España de Ciencia abierta."
+ },
+ {
+  "match": "https://pkp.sfu.ca/",
+  "authors": [
+   "Public Knowledge Project"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://pkp.sfu.ca/",
+  "checked": "2026-10-26",
+  "note": "Page title, site name and copyright line (Simon Fraser University)."
+ },
+ {
+  "match": "https://scielo.org/es/",
+  "authors": [
+   "Scientific Electronic Library Online (SciELO)"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://scielo.org/en/",
+  "checked": "2026-10-26",
+  "note": "Header and footer of the English home page. The cited Spanish page's author meta tag names its web developer, which is not the publisher."
+ },
+ {
+  "match": "https://communityarchiveslab.ucla.edu/",
+  "authors": [
+   "UCLA Community Archives Lab"
+  ],
+  "contributors": [],
+  "basis": "organisation-on-page",
+  "evidence": "https://communityarchiveslab.ucla.edu/",
+  "checked": "2026-10-26",
+  "note": "Page title."
+ },
+ {
+  "match": "https://howbooksaremade.com/episodes/who-gets-published/",
+  "authors": [
+   "Arthur Attwell"
+  ],
+  "contributors": [
+   "Anasuya Sengupta"
+  ],
+  "basis": "person-named",
+  "evidence": "https://howbooksaremade.com/episodes/who-gets-published/",
+  "checked": "2026-10-26",
+  "note": "The episode page names Arthur Attwell as host and Anasuya Sengupta as guest, with the series supported by Electric Book Works."
+ }
+]

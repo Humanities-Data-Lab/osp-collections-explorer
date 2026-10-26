@@ -446,6 +446,21 @@ def main():
             "chapters": sorted({p["chapter"] for p in e["placements"]}),
             "sections": sorted({s for p in e["placements"] for s in p["sections"]}),
         })
+    # Authors recovered by visiting each item's source (build/recovered_authors.json). Applied after identifiers
+    # are made, so an item's address does not change when its author is found.
+    with open(os.path.join(HERE, "recovered_authors.json"), encoding="utf-8") as f:
+        recoveries = json.load(f)
+    recovery_log = []
+    for rec in recoveries:
+        hit = [it for it in items if rec["match"] in it["citation"] and not it["authors"] and not it["editors"]]
+        if not hit:
+            anomalies.append({"type": "stale-recovery", "text": rec["match"][:80]})
+        for it in hit:
+            it["authors"] = list(rec["authors"])
+            it["contributors"] = list(dict.fromkeys(it["contributors"] + rec["contributors"]))
+            it["author_recovery"] = {"basis": rec["basis"], "evidence": rec["evidence"], "checked": rec["checked"], "note": rec["note"]}
+            recovery_log.append({"id": it["id"], "title": it["title"], "authors": it["authors"], "basis": rec["basis"],
+                                 "evidence": rec["evidence"], "note": rec["note"]})
     items.sort(key=lambda x: (fold((x["authors"] or x["editors"] or [""])[0]), x["year"] or 0, fold(x["title"])))
     for e in items:
         for role in ("authors", "editors", "container_editors", "contributors"):
@@ -464,6 +479,7 @@ def main():
         "meta": {
             "source": "https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections",
             "source_fetched": raw["fetched"], "licence": raw["rights"],
+            "author_recovery": recovery_log,
             "corrections": [{"match": c["match"], "reason": c["reason"], "applied": applied.get(c["match"], 0)} for c in corrections],
             "name_variants": [{"name": g["name"], "variants": g["variants"], "reason": g["reason"],
                                "applied": sum(used_alias.get(v, 0) for v in g["variants"])} for g in name_variants],

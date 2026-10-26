@@ -58,6 +58,11 @@ def syntax_table():
     return f'<table><thead><tr><th scope="col">Type</th><th scope="col">It finds</th></tr></thead><tbody>{rows}</tbody></table>'
 
 
+RECOVERY_LABELS = {
+    "person-named": "Named author or authors found in or on the source",
+    "organisation-on-page": "The organisation that publishes the page, as named on the page",
+    "organisation-other": "The organisation behind the page, identified from the citation or from other published descriptions because the page could not be read",
+}
 XML_BAD = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
 
 
@@ -133,11 +138,11 @@ def write_data():
         json.dump(out, f, ensure_ascii=False, indent=1)
     with open(os.path.join(SITE, "data", "items.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["id", "authors", "editors", "volume_editors", "contributors", "year", "title", "container", "type", "url", "doi", "volumes", "chapters", "sections", "topics", "annotation_source", "annotation", "citation_as_listed"])
+        w.writerow(["id", "authors", "editors", "volume_editors", "contributors", "year", "title", "container", "type", "url", "doi", "volumes", "chapters", "sections", "topics", "annotation_source", "annotation", "citation_as_listed", "author_recovery_basis"])
         for it in ITEMS:
             w.writerow([it["id"], "; ".join(it["authors"]), "; ".join(it["editors"]), "; ".join(it["container_editors"]), "; ".join(it["contributors"]), it["year"] or "", it["title"], it["container"], it["kind"], it["url"], it["doi"],
                         "; ".join(it["volumes"]), "; ".join(it["chapters"]), "; ".join(it["sections"]), "; ".join(it["topics"]),
-                        "; ".join(it["annotation_source"]), it["annotation"], it["citation"]])
+                        "; ".join(it["annotation_source"]), it["annotation"], it["citation"], (it.get("author_recovery") or {}).get("basis", "")])
     with open(os.path.join(SITE, "data", "validation.json"), "w", encoding="utf-8") as f:
         json.dump(VAL, f, ensure_ascii=False, indent=1)
     readme = f"""# Data model, {TITLE}
@@ -294,6 +299,10 @@ def item_pages():
             facts.append(("With", e("; ".join(it["contributors"]))))
         if it["container_editors"]:
             facts.append(("Editors of the containing volume", e("; ".join(it["container_editors"]))))
+        rec = it.get("author_recovery")
+        if rec:
+            facts.append(("Author recovered", e(RECOVERY_LABELS[rec["basis"]]) + ". " + e(rec["note"]) +
+                          ' <a href="' + e(rec["evidence"]) + '">Evidence</a>'))
         facts += [("Year", e(it["year_label"])), ("Type", e(it["kind"]))]
         if it["container"]:
             facts.append(("Published in", e(it["container"])))
@@ -385,6 +394,9 @@ def methodology_page():
     n_nodate = sum(1 for it in ITEMS if it["year"] is None)
     n_src = sum(1 for it in ITEMS if it["annotation_source"])
     raw = DS["meta"]["raw_entries"]
+    rec_log = DS["meta"]["author_recovery"]
+    rec_n = {b: sum(1 for r in rec_log if r["basis"] == b) for b in RECOVERY_LABELS}
+    rec_rows = "".join(f'<tr><td>{e(r["title"][:70])}</td><td>{e("; ".join(r["authors"]))}</td><td>{e(RECOVERY_LABELS[r["basis"]].split(" as ")[0].split(" because")[0])}</td><td><a href="{e(r["evidence"])}">Evidence</a></td></tr>' for r in rec_log)
     n_ed = sum(1 for it in ITEMS if it["editors"])
     n_ce = sum(1 for it in ITEMS if it["container_editors"])
     n_contrib = sum(1 for it in ITEMS if it["contributors"])
@@ -434,7 +446,13 @@ def methodology_page():
 <p>Names are then made consistent in two steps. First, a single capital letter standing alone is an initial and always takes a full stop, so "Brett D Hirsch" and "Brett D. Hirsch" are one name. Second, a reviewed table (<code>build/name_variants.json</code>) maps variants of the same person to the most complete form found in the sources, for example "Ray Siemens" and "Raymond Siemens" to "Raymond G. Siemens". {len(DS["meta"]["name_variants"])} people are in the table. Variants that only share a surname and initial but may be different people (such as Hannah McGregor and Heidi McGregor) are left separate. The table covers the variants found by comparing surnames and first initials; a variant with a different surname spelling, or a different order of names, would not be found.</p>
 {table(["Form used", "Written in the sources as", "Reason", "Uses"], nv_rows)}
 <p>After parsing, the build tests every name. It stops if a name still contains a role word (ed, eds, editor, translator), a marker symbol, a Greek letter, a year, a quotation mark or a web address, so that such defects cannot pass unnoticed.</p>
-<p>{n_noauth} items have neither a named author nor editor because the source lists a website or document under its title alone. They are labelled "No named author" rather than guessed.</p>
+<h3 id="recovery">Data recovery: items listed without an author</h3>
+<p>In the volumes, {len(rec_log) + n_noauth} items were listed with no author, almost all of them websites, blogs, reports and reference pages cited under their title. For this edition each one was checked against its own source on 26 October 2026: the cited address was opened, and its page title, site name, copyright line, structured publisher data, bylines and about text were read. Where the page could not be read (blocked automated access, an error, a page that shows no text without scripts, or an address that has moved), the name was taken from the citation itself or from the publisher's own published descriptions, found by search. The result is {len(rec_log)} recovered records and {n_noauth} still without a named author.</p>
+<p>Each recovered record carries its basis, a note and an evidence link, shown on the record page and kept in the data. The three bases are:</p>
+<ul><li><strong>Named authors found ({rec_n["person-named"]})</strong>: people named in or on the source as its authors, such as the members listed in a working group's report. When a page credits a host and a guest, the host is recorded as the author and the guest as a contributor.</li><li><strong>Organisation named on the page ({rec_n["organisation-on-page"]})</strong>: the page names no person, so the organisation or project that publishes it is recorded as a collective author, as is usual when citing an organisation's own website. The name is the one the page gives itself.</li><li><strong>Organisation identified from other sources ({rec_n["organisation-other"]})</strong>: the page itself could not be read, so the organisation is recorded from the citation or from other descriptions, and the note says which. These carry less certainty than the others.</li></ul>
+<p>Limits: a named author is recorded only when a source states it, and an interview's poster is not assumed to be its interviewer. One page in {len(rec_log) + n_noauth} still has no named author because its site shows no text without scripts and gave no name. Recovered names are written in <code>build/recovered_authors.json</code>; they are applied after item identifiers are made, so no address changed, and a recovery that stops matching its item stops the build.</p>
+{table(["Item", "Author recorded", "Basis", "Source checked"], rec_rows)}
+<p>{n_noauth} item still has neither a named author nor an editor. It is labelled "No named author" rather than guessed.</p>
 <h2 id="types">6. Deciding the type of work</h2>
 <p>Type is inferred from the citation's form, because the wiki does not record it:</p>
 <ul><li><strong>Book chapter</strong>: a quoted title followed by "In" and a book title.</li><li><strong>Journal article</strong>: a quoted title followed by a venue that contains a number (volume or issue), unless it starts with Report, Working, Policy or White.</li><li><strong>Report or web resource</strong>: a quoted title that fits neither, or an undated item.</li><li><strong>Book or report</strong>: an italic title with no quoted title.</li></ul>
@@ -477,7 +495,7 @@ def methodology_page():
 <p>The build compares each volume's parsed entries with the lines in its alphabetical reference list (where the volume has one) and reports the counts on the <a href="about.html">About page</a>. It lists entries without annotations, DOIs of unusual form, entries with no title, and lines it could not parse. The build stops if a new kind of irregularity appears that has not been reviewed.</p>
 <h3>Corrections</h3><p>Where the source itself contains a typing error that no rule can repair, the build applies a named correction, recorded in <code>build/corrections.json</code> with its reason and applied before duplicates are merged. A correction that stops matching anything stops the build. {len(DS["meta"]["corrections"])} corrections are in force:</p>{table(["Entry (fragment of the citation)", "Reason", "Applied"], corr_rows)}<p>These checks catch gross failures. They cannot show that every author name was split correctly, that each type or topic is right, or that two entries with different wording are really different works. The parsed count and the reference-list count differ in several volumes because lists can be partial or repeat entries listed in several sections. {n_ann:,} of {N:,} items have an annotation; the rest are unannotated in the source and are labelled so.</p>
 <h2 id="limits">14. Limits and cautions</h2>
-<ul><li>The data are a snapshot of a wiki that editors continue to improve. Check the volume page for the revision used.</li><li>{n_url:,} items carry a link ({n_doi:,} with a DOI). Links were not tested and may have moved.</li><li>Type, topics and author splitting are program guesses (sections 5, 6 and 9) and are described here so that you can discount them.</li><li>The corpus is English-language Wikibooks content; French editions are not included, which narrows the coverage of the multilingual theme.</li><li>No record is edited by hand except through the listed corrections (section 13). If a record is wrong, correct the wiki, the rules or the corrections file, then rebuild.</li></ul>
+<ul><li>The data are a snapshot of a wiki that editors continue to improve. Check the volume page for the revision used.</li><li>{n_url:,} items carry a link ({n_doi:,} with a DOI). Links were not tested and may have moved.</li><li>Type, topics and author splitting are program guesses (sections 5, 6 and 9) and are described here so that you can discount them.</li><li>The corpus is English-language Wikibooks content; French editions are not included, which narrows the coverage of the multilingual theme.</li><li>No record is edited by hand except through the listed corrections (section 13) and the recovered authors (section 5). If a record is wrong, correct the wiki, the rules or the corrections file, then rebuild.</li></ul>
 <h2 id="repro">15. Reproducing and changing the method</h2>
 <p>The snapshot, the program and the rules above are in the project repository. <code>python3 build/build.py</code> rebuilds this site from the snapshot with no network access; adding <code>--refresh</code> fetches the wiki again. The files <code>build/fetch.py</code> (source retrieval), <code>build/parse.py</code> (sections 3 to 10) and <code>build/render.py</code> (this site) hold the rules. When a rule changes, the maintainers raise the version number in <code>build/render.py</code>, and every page then shows it.</p>
 </div>"""
