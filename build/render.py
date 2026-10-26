@@ -61,7 +61,8 @@ def syntax_table():
 
 def page(title, body, depth=0, current="", description="", extra_head="", scripts=""):
     r = rel(depth)
-    nav = [("index.html", "Explore", "explore"), ("volumes/index.html", "Volumes", "volumes"), ("about.html", "About, data and citation", "about")]
+    nav = [("index.html", "Explore", "explore"), ("volumes/index.html", "Volumes", "volumes"),
+           ("methodology.html", "Methodology", "methodology"), ("about.html", "About, data and citation", "about")]
     cur = ' aria-current="page"'
     links = "".join(
         f'<li><a href="{r}{h}"{cur if c == current else ""}>{e(t)}</a></li>' for h, t, c in nav)
@@ -323,6 +324,90 @@ def about_page():
         f.write(page(f"About, data and citation · {TITLE}", body, 0, "about", scripts=HERE_JS))
 
 
+# ---------- methodology ----------
+def methodology_page():
+    from collections import Counter
+    kinds = Counter(it["kind"] for it in ITEMS)
+    n_ann = sum(1 for it in ITEMS if it["annotation"])
+    n_noauth = sum(1 for it in ITEMS if not it["authors"])
+    n_topic = sum(1 for it in ITEMS if it["topics"])
+    n_multi = sum(1 for it in ITEMS if len(it["placements"]) > 1)
+    n_doi = sum(1 for it in ITEMS if it["doi"])
+    n_url = sum(1 for it in ITEMS if it["url"] or it["doi"])
+    n_nodate = sum(1 for it in ITEMS if it["year"] is None)
+    n_src = sum(1 for it in ITEMS if it["annotation_source"])
+    raw = DS["meta"]["raw_entries"]
+    kind_rows = "".join(f'<tr><th scope="row">{e(k)}</th><td>{v}</td></tr>' for k, v in kinds.most_common())
+    lex_rows = "".join(
+        f'<tr><th scope="row">{e(k)}</th><td>{e(", ".join(v))}</td></tr>' for k, v in DS["lexicon"].items())
+    vol_rows = "".join(
+        f'<tr><th scope="row">{e(v["title"])}</th><td>{v["entries"]}</td><td>{e(", ".join(v["legend"].keys()) or "none")}</td></tr>' for v in VOLS)
+    def table(head, rows):
+        return ('<div class="tablewrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="data"><thead><tr>' +
+                "".join(f'<th scope="col">{h}</th>' for h in head) + "</tr></thead><tbody>" + rows + "</tbody></table></div>")
+    body = f"""<h1>Methodology</h1>
+<p class="lede">How this edition decides what is an item, who wrote it, what it is about, and which items count as the same. Every rule below is applied by program code, never by hand, so a rebuild reproduces the same result. Where a rule is a guess, the page says so.</p>
+<nav aria-label="On this page" class="prose"><ul>
+<li><a href="#scope">1. Scope and sources</a></li><li><a href="#capture">2. Capturing the text</a></li><li><a href="#entries">3. Deciding what counts as an entry</a></li>
+<li><a href="#citations">4. Reading a citation</a></li><li><a href="#authors">5. Deciding who the authors are</a></li><li><a href="#types">6. Deciding the type of work</a></li>
+<li><a href="#dupes">7. Deciding that two entries are the same item</a></li><li><a href="#ids">8. Identifiers and addresses</a></li><li><a href="#topics">9. Deciding topics</a></li>
+<li><a href="#origin">10. Annotation origin</a></li><li><a href="#search">11. How search and filters decide</a></li><li><a href="#charts">12. What the charts count</a></li>
+<li><a href="#checks">13. Checks and what they cannot show</a></li><li><a href="#limits">14. Limits and cautions</a></li><li><a href="#repro">15. Reproducing and changing the method</a></li></ul></nav>
+<div class="prose">
+<h2 id="scope">1. Scope and sources</h2>
+<p>The unit of analysis is the annotated bibliography entry: one cited work with an annotation written by the Open Scholarship Press authors. The explorer reads seven volumes from the <a href="https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections">Open Scholarship Press Collections</a> hub on English Wikibooks: Community, Connection, Policy, Training, Knowledge Mobilization in the Humanities, Engaging Knowledge Diversity, and Engaging Platforms in Open Scholarship.</p>
+<p>Four Observatory volumes (Foundational Observations and Extensions, in English and French) are left out because they appear to be essays about policy events rather than lists of cited works with annotations (this was judged from their page titles and structure, not from a full reading). The French editions and the separate Curated Volumes are also outside this edition. The cited works are not downloaded: the explorer keeps their bibliographic details and the annotations, and links to the original.</p>
+<h2 id="capture">2. Capturing the text</h2>
+<p>The build asks the MediaWiki API for the wikitext of every page whose title starts with a volume's name, and stores the page text with its revision identifier and timestamp. This edition uses the snapshot taken on {EDITION}. The licence is read from the API (Wikibooks reports {e(LIC['text'])}), and each volume page on this site shows the latest revision used. Requests are rate limited and identify the program, not a person.</p>
+<h2 id="entries">3. Deciding what counts as an entry</h2>
+<p>Each chapter page is read line by line. Headings (<code>==</code> to <code>=====</code>) build the section path shown as chapter and sections. A line starts a new entry when all of these hold:</p>
+<ul><li>it is bold wiki text on a line of its own (the wiki's way of setting a citation);</li><li>it is longer than 40 characters and does not end in a colon (this excludes glossary terms such as a bold definition heading);</li><li>it contains a year (1500 to 2099, with an optional letter such as 2015a, or n.d.), a quoted title, or a web address.</li></ul>
+<p>Everything after that line, up to the next entry or heading, is the annotation, with wiki markup removed. Introductions, abstracts and executive summaries are never read as entry sources. The alphabetical reference lists are not parsed into items; they are used only as a cross-check (section 13).</p>
+<p>Some entries are filed in one section and pointed to from another by a line that repeats the entry followed by a bracketed see-reference. The build skips those pointer lines ({VAL['info']['cross_reference_lines_skipped']} in this edition) and never parses them as entries.</p>
+<p>Result: {raw:,} entries listed across the seven volumes, before merging duplicates (section 7).</p>
+<h2 id="citations">4. Reading a citation</h2>
+<p>The wiki uses several citation styles. The parser tries them in this order and takes the first that fits:</p>
+<ol><li>The entry begins with a quotation mark or italics: no author was given, and the whole line is the title.</li><li>Author-year in parentheses, as in APA: <code>Authors. (2011). Title.</code></li><li>Author-year after a full stop, as in Chicago: <code>Authors. 2011. Title.</code></li><li>Title-first or MLA-like: the authors end at the first sentence boundary before a quoted or italic title, and the year is the last year found in the line.</li></ol>
+<p>The title is the quoted text, or the italic text when there are no quotes, or else the first sentence. Everything after the title is kept as the venue ("published in"). A DOI is any <code>10.nnnn/</code> string; the web address is the first <code>http</code> address. Leading symbols (such as +, a dagger or a triangle) are markers, not part of the citation (section 10). Source typing errors are reported, not corrected: for example, a DOI written <code>10/1177/…</code> stays as written.</p>
+<p>The citation text as the volume lists it is kept in full on every item, so any parsing mistake can be checked against it.</p>
+<h2 id="authors">5. Deciding who the authors are</h2>
+<p>The author text is split at commas and "and". If the first name is written "Last, First", it is turned into "First Last"; later names are taken as written. A name list is treated as an organisation, and left whole, when the second piece is long (more than three words) or the first piece contains a bracket or words such as "of", "for" or "the". "et al." is dropped. This is a heuristic: it handles most personal names correctly, but organisations with commas, double-barrelled names and unusual titles can be split wrongly. The author chart counts each name once per item; two spellings of one person count as two people.</p>
+<p>{n_noauth} items have no named author because the source lists a website or document under its title alone. They are labelled "No named author" rather than guessed.</p>
+<h2 id="types">6. Deciding the type of work</h2>
+<p>Type is inferred from the citation's form, because the wiki does not record it:</p>
+<ul><li><strong>Book chapter</strong>: a quoted title followed by "In" and a book title.</li><li><strong>Journal article</strong>: a quoted title followed by a venue that contains a number (volume or issue), unless it starts with Report, Working, Policy or White.</li><li><strong>Report or web resource</strong>: a quoted title that fits neither, or an undated item.</li><li><strong>Book or report</strong>: an italic title with no quoted title.</li></ul>
+<p>This is a rough guide. A chapter in an edited volume without "In" will be called an article, and a book may be called a report. Treat the type filter as a convenience, not a catalogue record.</p>
+{table(["Type", "Items"], kind_rows)}
+<h2 id="dupes">7. Deciding that two entries are the same item</h2>
+<p>The same work appears in several volumes, often with different wording. Two entries are the same item when they share, in this order of preference: the same DOI; otherwise the same web address (ignoring http, www and a trailing slash); otherwise the same title (letters and digits only) plus year. Entries that do not match on any of these stay separate, even if a person would call them the same work.</p>
+<p>When entries merge, the item keeps every volume placement, the longest annotation, the longer author list, and the other wordings as "other listings". The first volume's citation is kept as the citation as listed. {n_multi:,} of the {N:,} items appear in more than one volume. This also means the volume counts on this site (which count placements) add up to more than the number of items.</p>
+<h2 id="ids">8. Identifiers and addresses</h2>
+<p>Each item's identifier is the first ten characters of a SHA-1 hash of its DOI, or, without a DOI, of its first author, year and the first 80 characters of its title (accents and capitals removed). It depends on content, not on position, so adding entries elsewhere does not renumber existing items. If an item's DOI, first author, year or title changes in the wiki, its identifier will change. Item pages live at <code>items/identifier.html</code>.</p>
+<h2 id="topics">9. Deciding topics</h2>
+<p>The wiki gives chapter and section headings but no keywords, so topics come from a fixed list of {len(DS['lexicon'])} topics, each defined by word patterns written into the program (listed below). An item has a topic when any of the topic's patterns appears in its title or annotation, ignoring capitals. {n_topic:,} items ({round(100 * n_topic / N)} percent) have at least one topic; an item can have several.</p>
+<p>A topic tag means "this vocabulary appears in the text". It is not a judgement of what the work is mainly about, and it can overreach: "skills" or "training" tag a Training topic for any annotation that uses the word, and short patterns such as AI and DH are matched as whole words only. Items with no annotation cannot receive topics except from the title. The chapter and section path (searchable with <code>section:</code>) is the editors' own classification and is more reliable for subject than these tags.</p>
+{table(["Topic", "Patterns (any one matches)"], lex_rows)}
+<p>The patterns are in <code>build/parse.py</code> and the same list ships in <code>data/items.json</code>. Changing them and rebuilding changes every topic count.</p>
+<h2 id="origin">10. Annotation origin</h2>
+<p>Each volume's introduction has a table explaining the marker symbols that prefix entries (for example, annotations carried over from an earlier bibliography, or written by a named team member). The build reads that table for each volume rather than assuming one meaning, attaches each entry's markers to its placement, and exposes the table's wording as the "Annotation source" filter. {n_src:,} items carry at least one marker. A symbol means different things in different volumes, so the filter shows the full wording, not the symbol. Volumes without a legend table give no origin information.</p>
+{table(["Volume", "Entries parsed", "Marker symbols in legend"], vol_rows)}
+<h2 id="search">11. How search and filters decide</h2>
+<ul><li>All matching is done on text with accents removed and capitals ignored, and checks whether the text contains the typed letters, so <code>commons</code> also finds "commonsense".</li><li>Words typed together must all match; <code>OR</code> lets either neighbouring term match; a leading minus excludes.</li><li>A search with no field looks in title, authors, venue, annotation, topics, and chapter and section names. A field prefix looks only in that field.</li><li>Relevance score: each occurrence in the title counts 5, in the authors 4, in the section path 2, and in the annotation 1 (up to 5). Items with equal scores sort by author, then year. Without a search, the default order is author A to Z.</li><li>Within one filter group (for example two volumes) an item needs to match any selection; across groups it needs to match every group. The counts beside each option show what the result would be if that option alone were added to the other current filters.</li><li>Searching and filtering happen in your browser; nothing is sent anywhere.</li></ul>
+<h2 id="charts">12. What the charts count</h2>
+<ul><li><strong>Items by year</strong>: one column per year from 1990 and one for everything earlier. Items with no year ({n_nodate} in the whole collection) are left out of the columns, and the chart says how many were left out.</li><li><strong>Items by volume</strong>: placements; an item in two volumes counts in both.</li><li><strong>Most frequent authors</strong>: the twelve names that appear on most items in the current results.</li><li><strong>Topics across volumes</strong>: items per topic and volume (section 9), shaded in proportion to the largest cell.</li><li><strong>Shared items</strong>: items present in both of two volumes; the diagonal is each volume's total.</li></ul>
+<p>All charts describe the current search and filters, not the whole collection. The bibliography reflects what the editors chose to annotate, so counts describe this corpus, not the research literature at large. A rise in recent years reflects when the volumes were compiled as well as publishing trends.</p>
+<h2 id="checks">13. Checks and what they cannot show</h2>
+<p>The build compares each volume's parsed entries with the lines in its alphabetical reference list (where the volume has one) and reports the counts on the <a href="about.html">About page</a>. It lists entries without annotations, DOIs of unusual form, entries with no title, and lines it could not parse. The build stops if a new kind of irregularity appears that has not been reviewed.</p>
+<p>These checks catch gross failures. They cannot show that every author name was split correctly, that each type or topic is right, or that two entries with different wording are really different works. The parsed count and the reference-list count differ in several volumes because lists can be partial or repeat entries listed in several sections. {n_ann:,} of {N:,} items have an annotation; the rest are unannotated in the source and are labelled so.</p>
+<h2 id="limits">14. Limits and cautions</h2>
+<ul><li>The data are a snapshot of a wiki that editors continue to improve. Check the volume page for the revision used.</li><li>{n_url:,} items carry a link ({n_doi:,} with a DOI). Links were not tested and may have moved.</li><li>Type, topics and author splitting are program guesses (sections 5, 6 and 9) and are described here so that you can discount them.</li><li>The corpus is English-language Wikibooks content; French editions are not included, which narrows the coverage of the multilingual theme.</li><li>No one has hand-edited any record. If a record is wrong, correct the wiki or the program, then rebuild.</li></ul>
+<h2 id="repro">15. Reproducing and changing the method</h2>
+<p>The snapshot, the program and the rules above are in the project repository. <code>python3 build/build.py</code> rebuilds this site from the snapshot with no network access; adding <code>--refresh</code> fetches the wiki again. The files <code>build/fetch.py</code> (capture), <code>build/parse.py</code> (sections 3 to 10) and <code>build/render.py</code> (this site) hold the rules. When a rule changes, the maintainers raise the version number in <code>build/render.py</code>, and every page then shows it.</p>
+</div>"""
+    with open(os.path.join(SITE, "methodology.html"), "w", encoding="utf-8") as f:
+        f.write(page(f"Methodology · {TITLE}", body, 0, "methodology", scripts=HERE_JS))
+
+
 def main():
     if os.path.exists(SITE):
         shutil.rmtree(SITE)
@@ -333,6 +418,7 @@ def main():
     volume_pages()
     item_pages()
     about_page()
+    methodology_page()
     open(os.path.join(SITE, ".nojekyll"), "w").close()
     print("site built:", N, "items")
 
