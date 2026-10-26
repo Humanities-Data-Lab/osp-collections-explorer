@@ -150,3 +150,23 @@ dl.facts dt { font-weight: 600; } dl.facts dd { margin: 0; }
 .js-hide { display: none; }
 a, p, dd, li, h1, h2, h3, td, th { overflow-wrap: anywhere; }
 .tablewrap { overflow-x: auto; margin: 0.5rem 0 1rem; max-width: 100%; }
+
+/* staticSearch form embedded in the Explore sidebar (its own stylesheet is loaded first) */
+.filters #staticSearch { margin-top: 0.75rem; }
+.filters #ssResults, .filters #ssSplash { display: none; }
+.filters #ssForm { display: block; }
+.filters .ssQueryAndButton { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.filters #ssQuery { flex: 1 1 10rem; min-width: 0; font: inherit; color: var(--ink); background: var(--surface); border: 2px solid var(--muted); border-radius: 6px; padding: 0.5rem 0.65rem; min-height: 44px; }
+.filters button { font: inherit; }
+.filters .ssDescFilters, .filters .ssDateFilters, .filters .ssFeatFilters, .filters .ssBoolFilters { display: block; }
+.filters .ssFieldset, .filters fieldset { border: 0; border-top: 1px solid var(--rule); margin: 0.75rem 0 0; padding: 0.75rem 0 0; min-width: 0; }
+.filters fieldset legend { font-weight: 700; padding: 0 0.25rem 0 0; }
+.filters ul { list-style: none; margin: 0; padding: 0; }
+.filters li { padding: 0.15rem 0; }
+.filters label, .filters input[type="checkbox"] { cursor: pointer; }
+.filters input[type="checkbox"] { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); vertical-align: middle; margin-right: 0.35rem; }
+.filters input[type="text"] { font: inherit; color: var(--ink); background: var(--surface); border: 2px solid var(--muted); border-radius: 6px; padding: 0.4rem 0.55rem; min-height: 40px; max-width: 100%; }
+.filters select { font: inherit; }
+.filters .ssCount { color: var(--muted); font-variant-numeric: tabular-nums; }
+.nojs-note { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 0.5rem 0.9rem; margin: 0.75rem 0; }
+.bar:disabled, .hist button:disabled, .heat td button:disabled { cursor: default; opacity: 1; }

@@ -1,10 +1,10 @@
 # Open Scholarship Press Collections Explorer
 
-A static, dependency-free single-page explorer for the annotated bibliographies of the
+A static, dependency-free explorer for the annotated bibliographies of the
 [Open Scholarship Press Collections](https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections),
 built to the [Endings Principles](https://endings.uvic.ca/principles.html).
 
-Metadata and annotations are read from the public wiki text. The cited articles are linked, never downloaded.
+Searching and filtering use [staticSearch](https://endings.uvic.ca/staticSearch/): the Explore page embeds its generated form and engine and draws cards and charts from the matches. Metadata and annotations are read from the public wiki text. The cited articles are linked, never downloaded.
 
 ## Build
 
