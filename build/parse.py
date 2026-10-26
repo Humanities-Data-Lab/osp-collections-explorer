@@ -72,26 +72,44 @@ def parse_legend(text):
     return legend
 
 
+MARK_STOP = set("“”‘’\"'([")
+
+
+def is_marker_token(tok, legend):
+    """A marker token is made only of symbols, Greek letters or legend keys (glued tokens such as 'Φ+' allowed)."""
+    for ch in tok:
+        if ch in MARK_STOP:
+            return False
+        if ch in legend or not ch.isalnum() or "\u0370" <= ch <= "\u03ff":
+            continue
+        return False
+    return True
+
+
 def split_citation(raw, legend):
-    """Return (markers, citation_text). Markers are leading symbol tokens."""
+    """Return (markers, citation_text). Markers are the leading symbol tokens."""
     raw = raw.strip()
-    m = re.match(r"^((?:[^\w\s“\"‘'(\[]\s+|[^\w\s“\"‘'(\[]+\s*)+)(?=[\w“\"‘'(\[])", raw)
-    if not m:
-        return [], raw
-    symbols = re.findall(r"[^\w\s]", m.group(1))
-    return symbols, raw[m.end():].strip()
+    markers = []
+    while True:
+        m = re.match(r"^(\S+)\s+(?=\S)", raw)
+        if not m or not is_marker_token(m.group(1), legend):
+            break
+        markers += list(m.group(1))
+        raw = raw[m.end():]
+    return markers, raw.strip()
 
 
-def parse_names(author_str):
+def parse_names(author_str, inverted=True):
     """Heuristic author split. Returns a list of display names (First Last)."""
-    s = re.sub(r"\s+", " ", author_str).strip().rstrip(".")
+    s = re.sub(r"\s+", " ", author_str).strip()
+    s = re.sub(r"(?<![A-Z])\.$", "", s)  # keep the full stop of a final initial ("Brett D.")
     s = re.sub(r",? and the .*$", "", s) if " Institute" in s or "(" in s else s
     s = re.sub(r"\bet al\b\.?", "", s).strip(", ")
     toks = [t.strip() for t in re.split(r",\s*(?:and\s+)?|\s+and\s+", s) if t.strip()]
     toks = [re.sub(r"^and\s+", "", t) for t in toks]
     if not toks:
         return []
-    if len(toks) == 1:
+    if len(toks) == 1 or not inverted:
         return toks
     if len(toks[1].split()) > 3 or re.search(r"[(]|\b(of|for|the)\b", toks[0]):
         return toks  # organisational authors
@@ -104,6 +122,47 @@ def parse_names(author_str):
         else:
             out.append(t)
     return out
+
+
+ROLE_ED = re.compile(r"[,\s]+\(?(?:eds?|editors?)\.?\)?\s*$", re.I)
+WITH = re.compile(r",?\s+with\s+(?=[A-Z]|the\s)")
+AND_THE = re.compile(r",?\s+and\s+the\s+", re.I)
+
+
+def split_roles(authors_str):
+    """Separate authors, editors (of the work itself) and contributors ('with ...')."""
+    s = clean_markup(authors_str).strip()
+    s = re.sub(r"(?<![A-Z])[.,\s]+$", "", s) if not ROLE_ED.search(s) else s
+    editors_flag = bool(ROLE_ED.search(s))
+    if editors_flag:
+        s = ROLE_ED.sub("", s).rstrip(", ")
+    contributors = []
+    wm = WITH.search(s)
+    if wm:
+        contributors = parse_names(re.sub(r"^the\s+", "", s[wm.end():].strip(), flags=re.I), inverted=False)
+        s = s[:wm.start()]
+    groups = []
+    am = AND_THE.search(s)
+    if am:
+        groups = [s[am.end():].strip()]  # collective author, kept whole ("INKE and ETCL Research Groups")
+        s = s[:am.start()]
+    names = parse_names(s) + groups
+    return {
+        "authors": [] if editors_flag else names,
+        "editors": names if editors_flag else [],
+        "contributors": contributors,
+    }
+
+
+def container_editors(container):
+    m = re.search(r"\bedited by\s+(.+)$", container, re.I)
+    if not m:
+        return []
+    rest = m.group(1)
+    cut = re.search(r",\s*(?:(?:pp?|vol(?:ume)?)\.?\s*)?\d|\s\(|(?<![A-Z])\.\s", rest)
+    if cut:
+        rest = rest[:cut.start()]
+    return [n for n in (t.strip() for t in re.split(r",\s*(?:and\s+)?|\s+and\s+", rest)) if n]
 
 
 def split_authors_rest(cit):
@@ -147,7 +206,13 @@ def parse_citation(cit):
             title = desc.split(". ")[0].strip(" .")
             container = desc[len(title):].strip(" .")
     container = clean_markup(container)
-    title = clean_markup(title)
+    title = clean_markup(title).strip(" “”\"")
+    # A title with inner quotation marks can close early; fold the rest back into the title.
+    qm = re.match(r"^(.{0,250}?)[”\"]\s*", container)
+    if qm and not container.startswith("In "):
+        title = (title + " " + qm.group(1)).strip(" .,“”\"")
+        container = container[qm.end():].strip(" .")
+    roles = split_roles(authors_str)
     if tm and re.search(r"^In\b", container):
         kind = "Book chapter"
     elif tm and re.search(r"\d", container) and not re.search(r"^(In|Report|Working|Policy|White)\b", container):
@@ -158,7 +223,10 @@ def parse_citation(cit):
         kind = "Book or report"
     return {
         "authors_raw": clean_markup(authors_str),
-        "authors": parse_names(clean_markup(authors_str)),
+        "authors": roles["authors"],
+        "editors": roles["editors"],
+        "contributors": roles["contributors"],
+        "container_editors": container_editors(container),
         "year": None if year == "n.d." else int(year[:4]),
         "year_label": year,
         "title": title,
@@ -227,7 +295,7 @@ def parse_page(text, legend, volume_title, chapter, anomalies, page_title):
 
 
 def item_id(e):
-    key = (e["doi"].lower() if e["doi"] else "") or fold(e["authors"][0] if e["authors"] else "") + "|" + str(e["year"]) + "|" + fold(e["title"])[:80]
+    key = (e["doi"].lower() if e["doi"] else "") or fold((e["authors"] or e["editors"] or [""])[0]) + "|" + str(e["year"]) + "|" + fold(e["title"])[:80]
     return hashlib.sha1(key.encode()).hexdigest()[:10]
 
 
@@ -248,6 +316,9 @@ def main():
     with open(os.path.join(HERE, "raw", "pages.json"), encoding="utf-8") as f:
         raw = json.load(f)
     anomalies, per_volume, all_entries, volumes_meta = [], {}, [], []
+    with open(os.path.join(HERE, "corrections.json"), encoding="utf-8") as f:
+        corrections = json.load(f)
+    applied = {}
     for vol in raw["volumes"]:
         titles = vol["titles"]
         intro = next((t for t in titles if SKIP_CHAPTERS.search(t) and t.endswith("/Introduction")), None)
@@ -258,6 +329,11 @@ def main():
                 continue
             chapter = t.split("/", 1)[1]
             vol_entries += parse_page(raw["pages"][t]["text"], legend, vol["title"], chapter, anomalies, t)
+        for e in vol_entries:
+            for c in corrections:
+                if c["match"] in e["citation_raw"]:
+                    e.update(c["set"])
+                    applied[c["match"]] = applied.get(c["match"], 0) + 1
         # Validate: every entry found in the alphabetical list should be parsed.
         listed = 0
         for t in list_titles:
@@ -284,6 +360,9 @@ def main():
         })
         vol["_entries"] = vol_entries
         all_entries += vol_entries
+    for c in corrections:
+        if c["match"] not in applied:
+            anomalies.append({"type": "stale-correction", "text": c["match"]})
     # Deduplicate across volumes, merging memberships.
     merged = {}
     for e in all_entries:
@@ -302,7 +381,12 @@ def main():
                 m["variants"].append(e["citation_raw"])
             if len(e["annotation"]) > len(m["annotation"]):
                 m["annotation"] = e["annotation"]
-            m["authors"] = m["authors"] if len(m["authors"]) >= len(e["authors"]) else e["authors"]
+            if len(e["authors"]) + len(e["editors"]) > len(m["authors"]) + len(m["editors"]):
+                for k in ("authors", "editors", "authors_raw"):
+                    m[k] = e[k]
+            for k in ("contributors", "container_editors"):
+                if len(e[k]) > len(m[k]):
+                    m[k] = e[k]
     items, seen = [], {}
     for e in merged.values():
         i = item_id(e)
@@ -314,7 +398,8 @@ def main():
         legend_of = {v["slug"]: v["legend"] for v in volumes_meta}
         provenance = sorted({legend_of[p["vslug"]].get(sym, "") for p in e["placements"] for sym in p["marker"]} - {""})
         items.append({
-            "id": i, "authors": e["authors"], "authors_raw": e["authors_raw"], "year": e["year"], "year_label": e["year_label"],
+            "id": i, "authors": e["authors"], "editors": e["editors"], "container_editors": e["container_editors"],
+            "contributors": e["contributors"], "authors_raw": e["authors_raw"], "year": e["year"], "year_label": e["year_label"],
             "title": e["title"], "container": e["container"], "kind": e["kind"], "url": e["url"], "doi": e["doi"],
             "citation": e["citation_raw"], "variants": e["variants"][1:], "annotation": e["annotation"],
             "topics": topics, "annotation_source": provenance,
@@ -323,8 +408,16 @@ def main():
             "chapters": sorted({p["chapter"] for p in e["placements"]}),
             "sections": sorted({s for p in e["placements"] for s in p["sections"]}),
         })
-    items.sort(key=lambda x: (fold(x["authors"][0]) if x["authors"] else "", x["year"] or 0, fold(x["title"])))
+    items.sort(key=lambda x: (fold((x["authors"] or x["editors"] or [""])[0]), x["year"] or 0, fold(x["title"])))
     for e in items:
+        for role in ("authors", "editors", "container_editors", "contributors"):
+            for nm in e[role]:
+                if re.search(r"\b(eds?|editors?|trans|translators?)\b\.?$|^(eds?|editors?)\.?$", nm, re.I):
+                    anomalies.append({"type": "role-word-in-name", "text": f"{role}: {nm}"})
+                if re.search(r"\b(?:1[5-9]|20)\d\d\b|[“”\"]|https?:", nm):
+                    anomalies.append({"type": "citation-fragment-in-name", "text": f"{role}: {nm}"})
+                if re.search(r"[\u0370-\u03ff+†*▲¤]", nm):
+                    anomalies.append({"type": "symbol-in-name", "text": f"{role}: {nm}"})
         if not e["title"]:
             anomalies.append({"type": "missing-title", "text": e["citation"][:120]})
         if not e["year"] and e["year_label"] != "n.d.":
@@ -333,6 +426,7 @@ def main():
         "meta": {
             "source": "https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections",
             "source_fetched": raw["fetched"], "licence": raw["rights"],
+            "corrections": [{"match": c["match"], "reason": c["reason"], "applied": applied.get(c["match"], 0)} for c in corrections],
             "volume_count": len(volumes_meta), "raw_entries": len(all_entries), "unique_items": len(items),
         },
         "volumes": volumes_meta, "items": items, "lexicon": LEXICON,
@@ -341,7 +435,7 @@ def main():
         json.dump(dataset, f, ensure_ascii=False, indent=1)
     with open(os.path.join(HERE, "validation.json"), "w", encoding="utf-8") as f:
         json.dump({"per_volume": per_volume, "anomalies": anomalies,
-                   "info": {"items_without_named_author": sum(1 for i in items if not i["authors"]),
+                   "info": {"items_without_named_author": sum(1 for i in items if not i["authors"] and not i["editors"]),
                             "cross_reference_lines_skipped": xrefs[0]}}, f, ensure_ascii=False, indent=1)
     print(json.dumps(per_volume, indent=1))
     print("cross-reference lines skipped:", xrefs[0])

@@ -1,0 +1,55 @@
+[
+  {
+    "match": "Rio Riande, Gimena del 2022",
+    "set": {
+      "authors": [
+        "Gimena del Rio Riande"
+      ],
+      "year": 2022,
+      "year_label": "2022"
+    },
+    "reason": "The source omits the full stop after the name, so the year was read as part of it."
+  },
+  {
+    "match": "Dawkins, “The Necessity of Public Humanities” (research poster)",
+    "set": {
+      "authors": [
+        "Dawkins"
+      ],
+      "title": "The Necessity of Public Humanities",
+      "container": "Research poster",
+      "kind": "Report or web resource"
+    },
+    "reason": "The source gives only a surname, a title and an address, with no year."
+  },
+  {
+    "match": "Dewaele, “Understanding collaborative interactions",
+    "set": {
+      "authors": [
+        "Dewaele"
+      ],
+      "title": "Understanding collaborative interactions in relation to research impact in social sciences and humanities: A meta-ethnography",
+      "container": "",
+      "doi": "10.1093/reseval/rvaa033",
+      "url": "https://doi.org/10.1093/reseval/rvaa033",
+      "kind": "Report or web resource"
+    },
+    "reason": "The source gives only a surname, a title and a DOI address, with no year."
+  },
+  {
+    "match": "doi.org/10/1177/2056305117696523",
+    "set": {
+      "doi": "10.1177/2056305117696523",
+      "url": "https://doi.org/10.1177/2056305117696523"
+    },
+    "reason": "The source writes the DOI prefix with a slash (10/1177) in place of a full stop (10.1177)."
+  },
+  {
+    "match": "doi.org/10/2307/4486062",
+    "set": {
+      "doi": "10.2307/4486062",
+      "url": "https://doi.org/10.2307/4486062"
+    },
+    "reason": "The source writes the DOI prefix with a slash (10/2307) in place of a full stop (10.2307)."
+  }
+]

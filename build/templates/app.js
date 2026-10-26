@@ -18,6 +18,8 @@
 
   ITEMS.forEach(function (it) {
     it._authors = fold(it.authors.join(" ; "));
+    it._editors = fold(it.editors.concat(it.container_editors).join(" ; "));
+    it._people = fold(it.contributors.join(" ; "));
     it._title = fold(it.title);
     it._container = fold(it.container);
     it._note = fold(it.annotation);
@@ -25,7 +27,7 @@
     it._topics = fold(it.topics.join(" ; "));
     it._vols = fold(it.volumes.join(" ; "));
     it._kind = fold(it.kind);
-    it._all = [it._title, it._authors, it._container, it._note, it._sections, it._topics].join(" \n ");
+    it._all = [it._title, it._authors, it._editors, it._people, it._container, it._note, it._sections, it._topics].join(" \n ");
   });
 
   var state = { q: "", volume: [], topic: [], kind: [], source: [], from: "", to: "", author: "", sort: "relevance", shown: PAGE };
@@ -38,7 +40,7 @@
 
   /* ---------- query language ---------- */
   var FIELD = {
-    author: "_authors", title: "_title", in: "_container", journal: "_container", container: "_container",
+    author: "_authors", editor: "_editors", title: "_title", in: "_container", journal: "_container", container: "_container",
     note: "_note", annotation: "_note", section: "_sections", chapter: "_sections", topic: "_topics",
     vol: "_vols", volume: "_vols", type: "_kind", kind: "_kind"
   };
@@ -90,6 +92,7 @@
         if (t.neg || t.field === "year") return;
         if (!t.field || t.field === "title") s += 5 * count(it._title, t.text);
         if (!t.field || t.field === "author") s += 4 * count(it._authors, t.text);
+        if (!t.field || t.field === "editor") s += 3 * count(it._editors, t.text);
         if (!t.field || t.field === "section") s += 2 * count(it._sections, t.text);
         if (!t.field || t.field === "note") s += Math.min(5, count(it._note, t.text));
       });
@@ -230,7 +233,8 @@
 
   function sorted(list, clauses) {
     var a = list.slice();
-    var byAuthor = function (x, y) { return fold(x.authors[0] || "").localeCompare(fold(y.authors[0] || "")) || (x.year || 0) - (y.year || 0); };
+    var lead = function (x) { return fold((x.authors[0] || x.editors[0] || "")); };
+    var byAuthor = function (x, y) { return lead(x).localeCompare(lead(y)) || (x.year || 0) - (y.year || 0); };
     if (state.sort === "relevance" && clauses.length) {
       a.forEach(function (it) { it._s = score(clauses, it); });
       a.sort(function (x, y) { return y._s - x._s || byAuthor(x, y); });
@@ -241,13 +245,18 @@
     return a;
   }
 
+  function people(list, suffix) {
+    if (!list.length) return "";
+    return esc(list.slice(0, 4).join(", ") + (list.length > 4 ? " et al." : "")) + suffix;
+  }
+
   function card(it, terms) {
     var vols = it.volumes.map(function (v) { return '<li class="tag vol">' + esc(v) + "</li>"; }).join("");
     var topics = it.topics.map(function (t) { return '<li class="tag">' + esc(t) + "</li>"; }).join("");
     var links = "";
     var href = it.doi ? "https://doi.org/" + it.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, "") : it.url;
     if (href) links += '<a href="' + esc(href) + '" rel="noopener">Open source ' + (it.doi ? "(DOI)" : "(link)") + "</a>";
-    var by = it.authors.length ? esc(it.authors.slice(0, 4).join(", ") + (it.authors.length > 4 ? " et al." : "")) : "No named author";
+    var by = people(it.authors, "") || (people(it.editors, it.editors.length > 1 ? " (eds.)" : " (ed.)")) || "No named author";
     var full = it.annotation.length > 320 ? '<details><summary>Full annotation</summary><p>' + highlight(it.annotation, terms) + "</p></details>" : "";
     return '<li class="card"><h3><a href="items/' + it.id + '.html">' + highlight(it.title || it.citation, terms) + "</a></h3>" +
       '<p class="by"><strong>' + by + "</strong> · " + (it.year || "n.d.") + " · " + esc(it.kind) +
