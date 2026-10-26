@@ -10,7 +10,7 @@ import urllib.parse
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SITE = os.path.join(ROOT, "site")
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 TITLE = "Open Scholarship Press Collections Explorer"
 
 e = html.escape
@@ -62,7 +62,7 @@ def syntax_table():
 XML_BAD = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
 
 
-def page(title, body, depth=0, current="", description="", extra_head="", scripts=""):
+def page(title, body, depth=0, current="", description="", extra_head="", scripts="", html_id=""):
     """Every page is written as well-formed XHTML5 so that staticSearch can index it."""
     r = rel(depth)
     nav = [("index.html", "Explore", "explore"), ("items/search.html", "Search", "search"), ("volumes/index.html", "Volumes", "volumes"),
@@ -71,7 +71,7 @@ def page(title, body, depth=0, current="", description="", extra_head="", script
     links = "".join(
         f'<li><a href="{r}{h}"{cur if c == current else ""}>{e(t)}</a></li>' for h, t, c in nav)
     out = f'''<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"{(" id=" + chr(34) + html_id + chr(34)) if html_id else ""}>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -263,8 +263,9 @@ def ss_meta(it):
     """Filter and title metadata read by staticSearch (class names fixed by that tool)."""
     def m(name, cls, value):
         return f'<meta name="{e(name)}" class="staticSearch_{cls}" content="{e(value)}" />'
-    out = [m("Title", "docTitle", it["title"] or it["citation"][:120]),
-           m("Sort", "docSortKey", ((it["authors"] or it["editors"] or [""])[0] + " " + str(it["year"] or 9999) + " " + it["title"]).lower())]
+
+    out = [m("docTitle", "docTitle", it["title"] or it["citation"][:120]),
+           m("docSortKey", "docSortKey", ((it["authors"] or it["editors"] or [""])[0] + " " + str(it["year"] or 9999) + " " + it["title"]).lower())]
     out += [m("Volume", "desc", v) for v in it["volumes"]]
     out += [m("Topic", "desc", t) for t in it["topics"]]
     out.append(m("Type", "desc", it["kind"]))
@@ -317,15 +318,16 @@ def item_pages():
                 f'<h2>Where it appears</h2><ul class="prose">{places}</ul>{variants}'
                 f'<h2>Citation as listed</h2><p class="prose">{e(it["citation"])}</p>'
                 f'{cite_block(1, "Record: " + (it["title"] or "untitled") + ".", it["id"])}')
+        body = body.replace("><", ">\n<")  # whitespace between fields, so the search index does not join their words
         with open(os.path.join(SITE, "items", it["id"] + ".html"), "w", encoding="utf-8") as f:
-            f.write(page(f'{it["title"] or "Record"} · {TITLE}', body, 1, "", extra_head=ss_meta(it), scripts=HERE_JS))
+            f.write(page(f'{it["title"] or "Record"} · {TITLE}', body, 1, "", extra_head=ss_meta(it), scripts=HERE_JS, html_id="rec-" + it["id"]))
 
 
 # ---------- search (staticSearch) ----------
 def search_page():
     body = f"""<h1>Search the annotations</h1>
 <p class="lede">Full-text search across the {N:,} item records, with stemming, phrase matching and filters. It runs entirely in your browser from index files shipped with this site.</p>
-<div class="prose"><p>Type words to find items whose title, authors or annotation contain them; word endings are matched, so "repositories" also finds "repository". Put a phrase in double quotes, and use * as a wildcard. The filters on the left of the form narrow the results by volume, topic, type, year, author or editor. Each result links to its record page.</p>
+<div class="prose"><p>Type words to find items whose title, authors or annotation contain them; word endings are matched, so "repositories" also finds "repository". Put a phrase in double quotes, and use * as a wildcard. The filters below the search box narrow the results by volume, topic, type, year, author or editor. Each result links to its record page.</p>
 <p>This page uses <a href="https://endings.uvic.ca/staticSearch/">staticSearch</a>, the search tool of the Endings project. To chart or browse the collection by facets, use <a href="../index.html">Explore</a>. Without JavaScript, browse the <a href="../volumes/index.html">volume pages</a>.</p></div>
 <div id="staticSearch"></div>"""
     with open(os.path.join(SITE, "items", "search.html"), "w", encoding="utf-8") as f:
@@ -342,7 +344,7 @@ def about_page():
         ("2 Documentation", "The data model, lexicon and limitations are in data/README.md. Licence and attribution appear on every page."),
         ("3 Processing", "The build validates the parse against each volume's reference list and stops on any anomaly not previously reviewed."),
         ("4.1 to 4.3", "Static HTML, CSS and JavaScript only. No server software, frameworks, fonts, analytics or services."),
-        ("4.4", "Every volume and item has its own address. Search and filter state lives in the URL fragment (after #), never in a query string."),
+        ("4.4", "Every volume and item has its own address. Explore keeps its search and filter state in the URL fragment (after #). The one exception is the Search page, where staticSearch records the query after a question mark."),
         ("4.5, 4.6", "The full data ship with the site, and the main page embeds them, so it works from a saved file."),
         ("4.7", "Without JavaScript, the main page, volume pages and item pages remain readable and linked."),
         ("5.1 to 5.5", "Editions are built on a schedule chosen by the maintainers, carry a version and edition date on every page, include citation instructions, and keep item addresses stable (identifiers derive from the item's content, not its position)."),
@@ -390,6 +392,7 @@ def methodology_page():
     n_ed = sum(1 for it in ITEMS if it["editors"])
     n_ce = sum(1 for it in ITEMS if it["container_editors"])
     n_contrib = sum(1 for it in ITEMS if it["contributors"])
+    nv_rows = "".join(f'<tr><td>{e(g["name"])}</td><td>{e("; ".join(g["variants"]))}</td><td>{e(g["reason"])}</td><td>{g["applied"]}</td></tr>' for g in DS["meta"]["name_variants"])
     corr_rows = "".join(f'<tr><td>{e(c["match"])}</td><td>{e(c["reason"])}</td><td>{c["applied"]}</td></tr>' for c in DS["meta"]["corrections"])
     kind_rows = "".join(f'<tr><th scope="row">{e(k)}</th><td>{v}</td></tr>' for k, v in kinds.most_common())
     lex_rows = "".join(
@@ -432,6 +435,8 @@ def methodology_page():
 <li><strong>Volume editors</strong>: for a chapter, the names after "edited by" in the venue text are the editors of the containing book, recorded separately and never counted as authors. {n_ce} items carry them.</li>
 <li><strong>Contributors</strong>: names introduced by "with", such as "with the INKE Research Group", are collaborators credited after the authors. {n_contrib} items have them. A group introduced by "and the" at the end of the author list (for example "and the INKE and ETCL Research Groups") stays an author as one collective name.</li></ul>
 <p>The remaining author text is split at commas and "and". If the first name is written "Last, First", it is turned into "First Last"; later names are taken as written. A name list is treated as an organisation, and left whole, when the second piece is long (more than three words) or the first piece contains a bracket or words such as "of", "for" or "the". "et al." is dropped. This is a heuristic: it handles most personal names correctly, but organisations with commas, double-barrelled names and unusual titles can be split wrongly. The author chart counts authors only, each name once per item; two spellings of one person count as two people. The search fields <code>author:</code> and <code>editor:</code> look in the two groups separately, and a search with no field looks in all four.</p>
+<p>Names are then made consistent in two steps. First, a single capital letter standing alone is an initial and always takes a full stop, so "Brett D Hirsch" and "Brett D. Hirsch" are one name. Second, a reviewed table (<code>build/name_variants.json</code>) maps variants of the same person to the most complete form found in the sources, for example "Ray Siemens" and "Raymond Siemens" to "Raymond G. Siemens". {len(DS["meta"]["name_variants"])} people are in the table. Variants that only share a surname and initial but may be different people (such as Hannah McGregor and Heidi McGregor) are left separate. The table covers the variants found by comparing surnames and first initials; a variant with a different surname spelling, or a different order of names, would not be found.</p>
+{table(["Form used", "Written in the sources as", "Reason", "Uses"], nv_rows)}
 <p>After parsing, the build tests every name. It stops if a name still contains a role word (ed, eds, editor, translator), a marker symbol, a Greek letter, a year, a quotation mark or a web address, so that such defects cannot pass unnoticed.</p>
 <p>{n_noauth} items have neither a named author nor editor because the source lists a website or document under its title alone. They are labelled "No named author" rather than guessed.</p>
 <h2 id="types">6. Deciding the type of work</h2>
@@ -440,10 +445,11 @@ def methodology_page():
 <p>This is a rough guide. A chapter in an edited volume without "In" will be called an article, and a book may be called a report. Treat the type filter as a convenience, not a catalogue record.</p>
 {table(["Type", "Items"], kind_rows)}
 <h2 id="dupes">7. Deciding that two entries are the same item</h2>
-<p>The same work appears in several volumes, often with different wording. Two entries are the same item when they share, in this order of preference: the same DOI; otherwise the same web address (ignoring http, www and a trailing slash); otherwise the same title (letters and digits only) plus year. Entries that do not match on any of these stay separate, even if a person would call them the same work.</p>
+<p>The same work appears in several volumes, often with different wording and with different links (a DOI in one volume, the publisher or an archive page in another). Two entries are the same item when they share any one of: the same DOI (after dashes typed in place of hyphens are corrected); the same web address (ignoring http, www and a trailing slash); or the same title plus year, where the title has at least 25 letters and digits after accents, capitals and punctuation are ignored. Entries that match on none of these stay separate, even if a person would call them the same work.</p>
+<p>The title-plus-year rule is the loosest and could, in principle, merge two different works that share a long title and a year. In this edition it joined entries that differed only in how the link was written (for example a DOI against a publisher page); it is the reason the {raw:,} listed entries become {N:,} items and not more.</p>
 <p>When entries merge, the item keeps every volume placement, the longest annotation, the longer author list, and the other wordings as "other listings". The first volume's citation is kept as the citation as listed. {n_multi:,} of the {N:,} items appear in more than one volume. This also means the volume counts on this site (which count placements) add up to more than the number of items.</p>
 <h2 id="ids">8. Identifiers and addresses</h2>
-<p>Each item's identifier is the first ten characters of a SHA-1 hash of its DOI, or, without a DOI, of its first author, year and the first 80 characters of its title (accents and capitals removed). It depends on content, not on position, so adding entries elsewhere does not renumber existing items. If an item's DOI, first author, year or title changes in the wiki, its identifier will change. Item pages live at <code>items/identifier.html</code>.</p>
+<p>Each item's identifier is the first ten characters of a SHA-1 hash of its DOI, or, without a DOI, of its first author, year and the first 80 characters of its title (accents and capitals removed). It depends on content, not on position, so adding entries elsewhere does not renumber existing items. Changing a parsing or naming rule can change the identifiers of the affected items, which is why such a change raises the version number. If an item's DOI, first author, year or title changes in the wiki, its identifier will change. Item pages live at <code>items/identifier.html</code>.</p>
 <h2 id="topics">9. Deciding topics</h2>
 <p>The wiki gives chapter and section headings but no keywords, so topics come from a fixed list of {len(DS['lexicon'])} topics, each defined by word patterns written into the program (listed below). An item has a topic when any of the topic's patterns appears in its title or annotation, ignoring capitals. {n_topic:,} items ({round(100 * n_topic / N)} percent) have at least one topic; an item can have several.</p>
 <p>A topic tag means "this vocabulary appears in the text". It is not a judgement of what the work is mainly about, and it can overreach: "skills" or "training" tag a Training topic for any annotation that uses the word, and short patterns such as AI and DH are matched as whole words only. Items with no annotation cannot receive topics except from the title. The chapter and section path (searchable with <code>section:</code>) is the editors' own classification and is more reliable for subject than these tags.</p>
@@ -456,7 +462,7 @@ def methodology_page():
 <ul><li>All matching is done on text with accents removed and capitals ignored, and checks whether the text contains the typed letters, so <code>commons</code> also finds "commonsense".</li><li>Words typed together must all match; <code>OR</code> lets either neighbouring term match; a leading minus excludes.</li><li>A search with no field looks in title, authors, venue, annotation, topics, and chapter and section names. A field prefix looks only in that field.</li><li>Relevance score: each occurrence in the title counts 5, in the authors 4, in the section path 2, and in the annotation 1 (up to 5). Items with equal scores sort by author, then year. Without a search, the default order is author A to Z.</li><li>Within one filter group (for example two volumes) an item needs to match any selection; across groups it needs to match every group. The counts beside each option show what the result would be if that option alone were added to the other current filters.</li><li>Searching and filtering happen in your browser; nothing is sent anywhere.</li></ul>
 <h3 id="searchpage">The Search page (staticSearch)</h3>
 <p>The Search page is a different engine from the keyword box on Explore, and the two can return different results on purpose. It uses staticSearch, the search tool of the Endings project (release 2.0.3, checked out at a fixed commit that the build verifies). At build time staticSearch reads every item page, builds an index of word stems (English Porter2 stemming, with a stop-word list) as many small data files, and ships them with the site. Your browser fetches only the index files for the words you type; no server or database is involved.</p>
-<ul><li>It indexes the text of each item page, but not the page header, navigation or footer. Words in the item title count three times as much as other words.</li><li>It matches word forms ("repositories" finds "repository"), exact phrases in double quotes, and wildcards. The Explore keyword box instead matches the typed letters inside words.</li><li>Its filters come from labels written into each item page: Volume, Topic and Type (choose any), Has annotation (yes or no), Year (a range), and Author and Editor (type a name). These carry the same information and the same author and editor separation as the rest of the site (sections 5, 9 and 10).</li><li>Result snippets show the words around each match. Items are ordered by a relevance score from staticSearch, then by author and year.</li><li>For result links staticSearch may add a short <code>?ssMark=</code> marker so the matched word can be highlighted. This is the one place a query string can appear; every item page works without it.</li></ul>
+<ul><li>It indexes the text of each item page, but not the page header, navigation or footer. Words in the item title count three times as much as other words.</li><li>It matches word forms ("repositories" finds "repository"), exact phrases in double quotes, and wildcards. The Explore keyword box instead matches the typed letters inside words.</li><li>Its filters come from labels written into each item page: Volume, Topic and Type (choose any), Has annotation (yes or no), Year (a range), and Author and Editor (type a name). These carry the same information and the same author and editor separation as the rest of the site (sections 5, 9 and 10).</li><li>Result snippets show the words around each match. Items are ordered by a relevance score from staticSearch, then by author and year.</li><li>The Search page keeps your query in the address after a question mark (for example <code>search.html?q=repositories</code>), which is how staticSearch works. This is the only place on the site where a query string is used; every record, volume and Explore address stays plain.</li></ul>
 <h2 id="charts">12. What the charts count</h2>
 <ul><li><strong>Items by year</strong>: one column per year from 1990 and one for everything earlier. Items with no year ({n_nodate} in the whole collection) are left out of the columns, and the chart says how many were left out.</li><li><strong>Items by volume</strong>: placements; an item in two volumes counts in both.</li><li><strong>Most frequent authors</strong>: the twelve names that appear on most items in the current results.</li><li><strong>Topics across volumes</strong>: items per topic and volume (section 9), shaded in proportion to the largest cell.</li><li><strong>Shared items</strong>: items present in both of two volumes; the diagonal is each volume's total.</li></ul>
 <p>All charts describe the current search and filters, not the whole collection. The bibliography reflects what the editors chose to annotate, so counts describe this corpus, not the research literature at large. A rise in recent years reflects when the volumes were compiled as well as publishing trends.</p>

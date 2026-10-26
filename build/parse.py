@@ -165,6 +165,19 @@ def container_editors(container):
     return [n for n in (t.strip() for t in re.split(r",\s*(?:and\s+)?|\s+and\s+", rest)) if n]
 
 
+def fix_initials(name):
+    """A single capital letter standing alone is an initial and takes a full stop ("Brett D Hirsch")."""
+    return re.sub(r"(^|\s)([A-Z])(?=\s|$)", r"\1\2.", name)
+
+
+def canonical_name(name, alias, used):
+    name = fix_initials(name)
+    if name in alias:
+        used[name] = used.get(name, 0) + 1
+        return alias[name]
+    return name
+
+
 def split_authors_rest(cit):
     """Return (authors, year_label, rest) for author-date, APA, or title-first styles."""
     if cit.startswith(("“", '"', "''")):
@@ -191,6 +204,9 @@ def parse_citation(cit):
     url = url_m.group(0).rstrip(".,'") if url_m else ""
     doi_m = DOI.search(rest)
     doi = doi_m.group(0).rstrip(".,'") if doi_m else ""
+    doi = re.sub("[\u2010-\u2015\u2212]", "-", doi)  # en dash and similar are typing errors inside a DOI
+    if "doi.org" in url:
+        url = re.sub("[\u2010-\u2015\u2212]", "-", url)
     desc = rest[:url_m.start()].strip() if url_m else rest
     title = ""
     tm = re.match(r"[“\"](.+?)[”\"]", desc)
@@ -319,6 +335,10 @@ def main():
     with open(os.path.join(HERE, "corrections.json"), encoding="utf-8") as f:
         corrections = json.load(f)
     applied = {}
+    with open(os.path.join(HERE, "name_variants.json"), encoding="utf-8") as f:
+        name_variants = json.load(f)
+    alias = {v: g["name"] for g in name_variants for v in g["variants"]}
+    used_alias = {}
     for vol in raw["volumes"]:
         titles = vol["titles"]
         intro = next((t for t in titles if SKIP_CHAPTERS.search(t) and t.endswith("/Introduction")), None)
@@ -329,6 +349,14 @@ def main():
                 continue
             chapter = t.split("/", 1)[1]
             vol_entries += parse_page(raw["pages"][t]["text"], legend, vol["title"], chapter, anomalies, t)
+        for e in vol_entries:
+            for role in ("authors", "editors", "container_editors", "contributors"):
+                names = []
+                for n in e[role]:
+                    c = canonical_name(n, alias, used_alias)
+                    if c not in names:
+                        names.append(c)
+                e[role] = names
         for e in vol_entries:
             for c in corrections:
                 if c["match"] in e["citation_raw"]:
@@ -360,13 +388,23 @@ def main():
         })
         vol["_entries"] = vol_entries
         all_entries += vol_entries
+    for g in name_variants:
+        for v in g["variants"]:
+            if v not in used_alias:
+                anomalies.append({"type": "stale-name-variant", "text": v})
     for c in corrections:
         if c["match"] not in applied:
             anomalies.append({"type": "stale-correction", "text": c["match"]})
     # Deduplicate across volumes, merging memberships.
-    merged = {}
+    merged, by_title = {}, {}
     for e in all_entries:
         k = norm_key(e)
+        tkey = re.sub(r"[^a-z0-9]", "", fold(e["title"]))[:70]
+        tkey = tkey + "|" + str(e["year"]) if len(tkey) >= 25 else ""
+        if k not in merged and tkey and tkey in by_title:
+            k = by_title[tkey]  # same title and year, but the DOI or address was typed differently
+        elif tkey:
+            by_title.setdefault(tkey, k)
         e["vslug"] = slugify(e["volume"])
         place = {"volume": e["volume"], "vslug": next(v["slug"] for v in raw["volumes"] if v["title"] == e["volume"]),
                  "chapter": e["chapter"], "sections": e["sections"], "marker": e["marker"]}
@@ -427,6 +465,8 @@ def main():
             "source": "https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections",
             "source_fetched": raw["fetched"], "licence": raw["rights"],
             "corrections": [{"match": c["match"], "reason": c["reason"], "applied": applied.get(c["match"], 0)} for c in corrections],
+            "name_variants": [{"name": g["name"], "variants": g["variants"], "reason": g["reason"],
+                               "applied": sum(used_alias.get(v, 0) for v in g["variants"])} for g in name_variants],
             "volume_count": len(volumes_meta), "raw_entries": len(all_entries), "unique_items": len(items),
         },
         "volumes": volumes_meta, "items": items, "lexicon": LEXICON,
