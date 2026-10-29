@@ -43,7 +43,10 @@ def call(**params):
                 raise
             wait = 30 * (attempt + 1)
             if isinstance(e, urllib.error.HTTPError):
-                wait = int(e.headers.get("Retry-After") or 0) or wait
+                try:
+                    wait = int(e.headers.get("Retry-After") or 0) or wait
+                except ValueError:
+                    pass        # Retry-After may be an HTTP date; keep the default wait
             print("retry after", type(e).__name__, "waiting", wait, "s")
             time.sleep(wait)
 

@@ -5,3 +5,5 @@ build/raw/chunks/
 __pycache__/
 .DS_Store
 build/_staticsearch/
+.coverage
+.coverage.*

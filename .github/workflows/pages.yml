@@ -23,7 +23,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Nothing is built or deployed unless every test passes (Python suite with coverage floor, then the JavaScript suite).
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install the coverage tool (test-time only; the site itself has no dependencies)
+        run: python3 -m pip install "coverage==7.6.4"
+      - name: Run all tests
+        run: python3 tests/run_all.py
+
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

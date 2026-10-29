@@ -170,3 +170,31 @@ a, p, dd, li, h1, h2, h3, td, th { overflow-wrap: anywhere; }
 .filters .ssCount { color: var(--muted); font-variant-numeric: tabular-nums; }
 .nojs-note { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 0.5rem 0.9rem; margin: 0.75rem 0; }
 .bar:disabled, .hist button:disabled, .heat td button:disabled { cursor: default; opacity: 1; }
+
+/* co-authorship */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.6rem; margin: 0.5rem 0 1rem; }
+.metrics div { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 0.5rem 0.75rem; }
+.metrics dt { font-size: 0.8rem; color: var(--muted); }
+.metrics dd { margin: 0; font-family: var(--serif); font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+#network svg { width: 100%; height: auto; display: block; }
+.net .edge { stroke: var(--muted); opacity: 0.45; }
+.net .node circle { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; cursor: pointer; }
+.net .node:hover circle { stroke: var(--ink); stroke-width: 2.5; }
+.net .node:focus-visible { outline: none; }
+.net .node:focus-visible circle { stroke: var(--focus); stroke-width: 4; }
+.net .lbl { font: 13px var(--sans); fill: var(--ink); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.net.has-sel .edge:not(.on) { opacity: 0.08; }
+.net.has-sel .edge.on { opacity: 0.9; stroke: var(--focus); }
+.net.has-sel .node:not(.sel):not(.near) circle { opacity: 0.25; }
+.net .node.sel circle { fill: var(--focus); stroke: var(--ink); stroke-width: 3; }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-left: 4px solid var(--accent); border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; }
+.panel h4 { margin: 0.75rem 0 0.25rem; font-size: 0.95rem; }
+.panel ul { margin: 0; padding-left: 1.2rem; max-height: 12rem; overflow: auto; }
+button.linkish { background: none; border: 0; padding: 0; min-height: 0; color: var(--accent); font: inherit; font-weight: 400; text-decoration: underline; text-underline-offset: 0.15em; text-align: left; }
+.sbars { list-style: none; margin: 0; padding: 0; }
+.sbars li { display: grid; grid-template-columns: 7rem 1fr 3rem; gap: 0.5rem; align-items: center; padding: 0.15rem 0; }
+.sbars .track { display: block; height: 0.9rem; }
+.sbars .fill { display: block; height: 100%; min-width: 2px; background: var(--accent); border-radius: 2px; }
+.sbars .num { text-align: right; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); }
+@media (forced-colors: active) { .net .node circle, .sbars .fill { fill: CanvasText; background: CanvasText; } .net .edge { stroke: CanvasText; } }

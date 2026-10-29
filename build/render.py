@@ -7,10 +7,10 @@ import re
 import shutil
 import urllib.parse
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.environ.get("OSP_BUILD_DIR") or os.path.dirname(os.path.abspath(__file__))   # the variable lets the tests build in a scratch copy
 ROOT = os.path.dirname(HERE)
 SITE = os.path.join(ROOT, "site")
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 TITLE = "Open Scholarship Press Collections Explorer"
 
 e = html.escape
@@ -23,6 +23,7 @@ def read(path):
 
 CSS = read("templates/style.css")
 JS = read("templates/app.js")
+CO_JS = read("templates/coauthor.js")
 
 with open(os.path.join(HERE, "dataset.json"), encoding="utf-8") as f:
     DS = json.load(f)
@@ -70,7 +71,7 @@ XML_BAD = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]")
 def page(title, body, depth=0, current="", description="", extra_head="", scripts="", html_id=""):
     """Every page is written as well-formed XHTML5 so that staticSearch can index it."""
     r = rel(depth)
-    nav = [("index.html", "Explore", "explore"), ("items/search.html", "Search", "search"), ("volumes/index.html", "Volumes", "volumes"),
+    nav = [("index.html", "Explore", "explore"), ("items/search.html", "Search", "search"), ("coauthorship.html", "Co-authorship", "coauthorship"), ("volumes/index.html", "Volumes", "volumes"),
            ("methodology.html", "Methodology", "methodology"), ("about.html", "About, data and citation", "about")]
     cur = ' aria-current="page"'
     links = "".join(
@@ -151,7 +152,7 @@ def write_data():
 Version {VERSION}, edition {EDITION}. Licence of the item records and annotations: {LIC['text']} ({LIC['url']}).
 Source: https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections
 
-Files: items.json (full records, volumes, lexicon), items.csv (flat table), validation.json (parser report).
+Files: items.json (full records, volumes, lexicon), items.csv (flat table), validation.json (parser report), coauthorship-ties.csv (one row per pair of authors who share items: author_a, author_b, shared_items, item_ids) and coauthorship-authors.csv (one row per author: items, coauthored_items, coauthors, group, group_size; authors with no co-author have an empty group). Only authors are tied; editors and contributors are not. See section 16 of the Methodology page.
 
 ## items.json, item fields
 
@@ -382,6 +383,124 @@ def about_page():
         f.write(page(f"About, data and citation · {TITLE}", body, 0, "about", scripts=HERE_JS))
 
 
+# ---------- co-authorship ----------
+def coauthor_stats():
+    """Ties between authors of the same item, over the whole collection (unfiltered). Authors only; editors and contributors are not authors."""
+    from collections import defaultdict
+    from itertools import combinations
+    count = defaultdict(int)
+    ties = defaultdict(list)
+    for it in ITEMS:
+        names = sorted(set(it["authors"]))
+        for n in names:
+            count[n] += 1
+        for a, b in combinations(names, 2):
+            ties[(a, b)].append(it["id"])
+    parent = {}
+
+    def find(x):
+        while parent.setdefault(x, x) != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    for a, b in ties:
+        parent[find(a)] = find(b)
+    members = defaultdict(list)
+    for n in {x for t in ties for x in t}:
+        members[find(n)].append(n)
+    groups = sorted(members.values(), key=lambda g: (-len(g), min(g)))
+    gid = {n: i + 1 for i, g in enumerate(groups) for n in g}
+    co = defaultdict(set)
+    nb = defaultdict(set)
+    for (a, b), ids in ties.items():
+        co[a].update(ids)
+        co[b].update(ids)
+        nb[a].add(b)
+        nb[b].add(a)
+    return count, ties, groups, gid, co, nb
+
+
+def coauthor_files(count, ties, groups, gid, co, nb):
+    with open(os.path.join(SITE, "data", "coauthorship-authors.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["author", "items", "coauthored_items", "coauthors", "group", "group_size"])
+        for n in sorted(count, key=lambda x: (-len(co[x]), x)):
+            g = gid.get(n)
+            w.writerow([n, count[n], len(co[n]), len(nb[n]), g or "", len(groups[g - 1]) if g else 1])
+    with open(os.path.join(SITE, "data", "coauthorship-ties.csv"), "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["author_a", "author_b", "shared_items", "item_ids"])
+        for (a, b), ids in sorted(ties.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+            w.writerow([a, b, len(ids), "; ".join(ids)])
+
+
+def coauthor_page():
+    count, ties, groups, gid, co, nb = coauthor_stats()
+    coauthor_files(count, ties, groups, gid, co, nb)
+    slim = [{"id": it["id"], "a": it["authors"], "y": it["year"], "v": it["volumes"], "t": it["topics"], "k": it["kind"],
+             "n": it["title"] if len(set(it["authors"])) > 1 else ""} for it in ITEMS if it["authors"]]
+    years = [it["year"] for it in ITEMS if it["year"]]
+    kinds = sorted({it["kind"] for it in ITEMS})
+    data = {"items": slim}
+    blob = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+
+    def boxes(name, values):
+        return "".join(f'<label class="opt"><input type="checkbox" name="{name}" value="{e(v)}" /> <span>{e(v)}</span></label>' for v in values)
+    vols = "".join(f'<label class="opt"><input type="checkbox" name="Volume" value="{e(v["title"])}" /> <span>{e(v["title"])}</span></label>' for v in VOLS)
+    datalist = "".join(f'<option value="{e(n)}"></option>' for n in sorted(gid))
+    top = sorted(co, key=lambda n: (-len(co[n]), -len(nb[n]), n))[:12]
+    people_rows = "".join(f'<tr><th scope="row">{e(n)}</th><td>{count[n]}</td><td>{len(co[n])}</td><td>{len(nb[n])}</td></tr>' for n in top)
+    pairs = sorted((kv for kv in ties.items() if len(kv[1]) >= 2), key=lambda kv: (-len(kv[1]), kv[0]))[:15]
+    pair_rows = "".join(f'<tr><th scope="row">{e(a)} and {e(b)}</th><td>{len(ids)}</td></tr>' for (a, b), ids in pairs)
+
+    def table(head, rows):
+        return ('<div class="tablewrap" tabindex="0" role="region" aria-label="Scrollable table"><table class="data"><thead><tr>' +
+                "".join(f'<th scope="col">{h}</th>' for h in head) + "</tr></thead><tbody>" + rows + "</tbody></table></div>")
+    body = f"""<h1>Co-authorship</h1>
+<p class="lede">Authors who share an item are tied together. The network shows every connected group of authors, and the filters choose which items count. Circle size follows the number of items an author has in the current selection; line thickness follows the number of items two authors share.</p>
+<div class="nojs" role="note"><p><strong>JavaScript is off or unavailable.</strong> The interactive network needs JavaScript. The tables below describe the whole collection, and the ties are available as <a href="data/coauthorship-ties.csv">CSV</a>.</p>
+{table(["Author", "Items", "Co-authored items", "Co-authors"], people_rows)}
+{table(["Pair sharing two or more items", "Shared items"], pair_rows)}</div>
+<div class="layout jsonly">
+<aside class="filters" aria-label="Co-authorship filters"><details id="filterbox" open="open"><summary>Filters</summary>
+<form id="co-filters" onsubmit="return false">
+<fieldset><legend>Volume</legend><div class="scroll">{vols}</div></fieldset>
+<fieldset><legend>Topic</legend><div class="scroll">{boxes("Topic", TOPICS)}</div></fieldset>
+<fieldset><legend>Type</legend>{boxes("Type", kinds)}</fieldset>
+<fieldset><legend>Year</legend><div class="yearrange"><label for="yfrom" class="sr">From year</label><input type="number" id="yfrom" min="{min(years)}" max="{max(years)}" placeholder="{min(years)}" />
+<span aria-hidden="true">to</span><label for="yto" class="sr">To year</label><input type="number" id="yto" min="{min(years)}" max="{max(years)}" placeholder="{max(years)}" /></div></fieldset>
+<fieldset><legend>Network</legend>
+<p><label for="tie">Draw a tie when two authors share at least</label> <select id="tie"><option value="1">1 item</option><option value="2">2 items</option><option value="3">3 items</option></select></p>
+<p><label for="group">Draw groups of at least</label> <select id="group"><option value="2">2 authors</option><option value="3">3 authors</option><option value="4">4 authors</option><option value="5">5 authors</option><option value="8">8 authors</option></select></p></fieldset>
+<fieldset><legend>Find an author</legend>
+<label for="find" class="sr">Author name</label><input type="text" id="find" list="co-names" autocomplete="off" placeholder="Start typing a name" />
+<datalist id="co-names">{datalist}</datalist>
+<p id="find-note" role="status" class="sub"></p>
+<label class="opt"><input type="checkbox" id="only" /> <span>Show only that author's group</span></label></fieldset>
+<p><button type="button" class="secondary" id="co-reset">Reset all filters</button></p>
+</form></details></aside>
+<section aria-label="Co-authorship results">
+<p id="co-status" role="status" aria-live="polite"></p>
+<dl class="metrics"><div><dt>Items with a named author</dt><dd id="m-items"></dd></div><div><dt>Items with more than one author</dt><dd id="m-multi"></dd></div><div><dt>Authors</dt><dd id="m-authors"></dd></div>
+<div><dt>Ties between authors</dt><dd id="m-ties"></dd></div><div><dt>Groups</dt><dd id="m-groups"></dd></div><div><dt>Authors in largest group</dt><dd id="m-largest"></dd></div></dl>
+<figure class="chart wide"><figcaption id="net-cap">Network of co-authors</figcaption>
+<p class="sub">Each circle is an author; a line joins two authors who share an item. Groups are laid out separately, largest first. Colour carries no information. Select a circle to see that author's ties.</p>
+<div id="network"></div></figure>
+<div id="panel" class="panel" aria-live="polite"></div>
+<div class="viz">
+<figure class="chart"><figcaption>Most active co-authors</figcaption><p class="sub">Ranked by items written with at least one other author.</p><div id="t-people"></div></figure>
+<figure class="chart"><figcaption>Pairs who share most</figcaption><p class="sub">Pairs sharing two or more items.</p><div id="t-ties"></div></figure>
+<figure class="chart"><figcaption>Authors per item</figcaption><p class="sub">Items with at least one named author.</p><div id="t-per"></div></figure>
+<figure class="chart"><figcaption>Largest groups</figcaption><p class="sub">Connected groups of any size, largest first.</p><div id="t-groups"></div></figure>
+</div>
+<p>The ties and authors can be downloaded for the whole collection as <a href="data/coauthorship-ties.csv">CSV of ties</a> and <a href="data/coauthorship-authors.csv">CSV of authors</a>. How ties are counted is set out in section 16 of the <a href="methodology.html#coauthorship">Methodology</a>.</p>
+</section></div>
+<script type="application/json" id="co-data">{blob}</script>"""
+    with open(os.path.join(SITE, "coauthorship.html"), "w", encoding="utf-8") as f:
+        f.write(page(f"Co-authorship · {TITLE}", body, 0, "coauthorship", description="Explore which authors in the Open Scholarship Press Collections write together, with filters.",
+                     scripts="<script>" + CO_JS + "</script>"))
+
+
 # ---------- methodology ----------
 def methodology_page():
     from collections import Counter
@@ -395,6 +514,10 @@ def methodology_page():
     n_nodate = sum(1 for it in ITEMS if it["year"] is None)
     n_src = sum(1 for it in ITEMS if it["annotation_source"])
     raw = DS["meta"]["raw_entries"]
+    co_count, co_ties, co_groups, co_gid, co_co, co_nb = coauthor_stats()
+    co_multi = sum(1 for it in ITEMS if len(set(it["authors"])) > 1)
+    co_withauth = sum(1 for it in ITEMS if it["authors"])
+    co_pairs = sum(1 for g in co_groups if len(g) == 2)
     rec_log = DS["meta"]["author_recovery"]
     rec_n = {b: sum(1 for r in rec_log if r["basis"] == b) for b in RECOVERY_LABELS}
     rec_rows = "".join(f'<tr><td>{e(r["title"][:70])}</td><td>{e("; ".join(r["authors"]))}</td><td>{e(RECOVERY_LABELS[r["basis"]].split(" as ")[0].split(" because")[0])}</td><td><a href="{e(r["evidence"])}">Evidence</a></td></tr>' for r in rec_log)
@@ -418,7 +541,7 @@ def methodology_page():
 <li><a href="#citations">4. Reading a citation</a></li><li><a href="#authors">5. Deciding who the authors and editors are</a></li><li><a href="#types">6. Deciding the type of work</a></li>
 <li><a href="#dupes">7. Deciding that two entries are the same item</a></li><li><a href="#ids">8. Identifiers and addresses</a></li><li><a href="#topics">9. Deciding topics</a></li>
 <li><a href="#origin">10. Annotation origin</a></li><li><a href="#search">11. How search and filters decide</a></li><li><a href="#charts">12. What the charts count</a></li>
-<li><a href="#checks">13. Checks and what they cannot show</a></li><li><a href="#limits">14. Limits and cautions</a></li><li><a href="#repro">15. Reproducing and changing the method</a></li></ul></nav>
+<li><a href="#checks">13. Checks and what they cannot show</a></li><li><a href="#limits">14. Limits and cautions</a></li><li><a href="#repro">15. Reproducing and changing the method</a></li><li><a href="#coauthorship">16. Co-authorship</a></li></ul></nav>
 <div class="prose">
 <h2 id="scope">1. Scope and sources</h2>
 <p>The unit of analysis is the annotated bibliography entry: one cited work with an annotation written by the Open Scholarship Press authors. The explorer reads seven volumes from the <a href="https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections">Open Scholarship Press Collections</a> hub on English Wikibooks: Community, Connection, Policy, Training, Knowledge Mobilization in the Humanities, Engaging Knowledge Diversity, and Engaging Platforms in Open Scholarship.</p>
@@ -499,6 +622,34 @@ def methodology_page():
 <ul><li>The data are a snapshot of a wiki that editors continue to improve. Check the volume page for the revision used.</li><li>{n_url:,} items carry a link ({n_doi:,} with a DOI). Links were not tested and may have moved.</li><li>Type, topics and author splitting are program guesses (sections 5, 6 and 9) and are described here so that you can discount them.</li><li>The corpus is English-language Wikibooks content; French editions are not included, which narrows the coverage of the multilingual theme.</li><li>No record is edited by hand except through the listed corrections (section 13) and the recovered authors (section 5). If a record is wrong, correct the wiki, the rules or the corrections file, then rebuild.</li></ul>
 <h2 id="repro">15. Reproducing and changing the method</h2>
 <p>The snapshot, the program and the rules above are in the project repository. <code>python3 build/build.py</code> rebuilds this site from the snapshot with no network access; adding <code>--refresh</code> fetches the wiki again. The files <code>build/fetch.py</code> (source retrieval), <code>build/parse.py</code> (sections 3 to 10) and <code>build/render.py</code> (this site) hold the rules. When a rule changes, the maintainers raise the version number in <code>build/render.py</code>, and every page then shows it.</p>
+<h2 id="coauthorship">16. Co-authorship</h2>
+<p>The <a href="coauthorship.html">Co-authorship</a> page draws the authors of the same item as a network that responds to filters. It follows the Endings Principles in these ways.</p>
+<ul>
+<li>Data: the ties and the authors are published as plain CSV (<a href="data/coauthorship-ties.csv">ties</a>, <a href="data/coauthorship-authors.csv">authors</a>) beside the full records, so the network can be rebuilt in any other tool without this site.</li>
+<li>Documentation: this section states every rule that turns records into the picture, and the limits of each.</li>
+<li>Processes: the network is computed by a short, readable script (<code>build/templates/coauthor.js</code>) with no libraries, no network calls and no stored state. The layout starts from a pseudo-random arrangement seeded by the first author's name, so the same filters always give the same picture.</li>
+<li>Products: the page is plain HTML with an embedded data block. Without JavaScript it falls back to tables describing the whole collection. The network is SVG with text names; every circle can be reached and activated from the keyboard, and the tables repeat what the picture shows. Colour carries no information.</li>
+<li>Distribution: the page needs no server and works from a saved copy. The filter state is kept in the page address after a question mark, so a view can be bookmarked or shared.</li>
+</ul>
+<h3>What counts as a tie</h3>
+<p>Only authors are tied. Editors, volume editors and contributors (section 5) are left out, because editing a book or being credited as a collaborator is a different relation from writing together. Every pair of authors named on the same item receives a tie, so an item with <em>n</em> authors yields n(n-1)/2 ties. Each tie records the items that produced it. In the whole collection, {co_multi:,} of the {co_withauth:,} items with a named author have more than one author, and they yield {len(co_ties):,} ties among {len(co_gid):,} authors. The authors form {len(co_groups)} connected groups (a group is a set of authors linked by chains of ties); {co_pairs} of them are single pairs, and the largest has {len(co_groups[0])} authors.</p>
+<h3>What the filters do</h3>
+<p>The filters select items first, and the network is then recomputed from the authors of the selected items alone. Within one filter an item needs to match any choice; across filters it needs to match all, as on Explore. An item with no year is dropped when a year limit is set. Two further settings shape the drawing without changing which items are selected: the minimum number of shared items for a tie to be drawn (so that one-off collaborations can be set aside to show repeated ones), and the smallest group to draw. Raising the tie threshold can split a group into smaller groups, and authors left with no tie disappear from the picture while remaining in the counts of authors. Choosing an author with "Find an author" selects the circle and, if asked, shows only that author's group.</p>
+<h3>What the picture shows</h3>
+<ul>
+<li>Circle area grows with the number of selected items an author has; line thickness grows with the number of items two authors share (up to five).</li>
+<li>Each connected group is laid out by itself with a force-directed method (every circle repels every other, every tie pulls its two ends together) and the groups are then packed in rows, largest first. Distance across the picture has no meaning. Position inside a group shows structure only: authors with many ties sit in the middle, authors with few at the edge.</li>
+<li>Names are drawn beside a circle only for authors with three or more items or seven or more co-authors, and for the selected author and that author's co-authors; a name is left out where it would overlap another. Every circle carries its name in the tooltip and the accessible label.</li>
+<li>The tables rank authors by items written with at least one other author, then by number of distinct co-authors; pairs by shared items; and groups by size.</li>
+</ul>
+<h3>Limits</h3>
+<ul>
+<li>A long author list produces a dense cluster of ties between people who may never have worked together in pairs. The largest groups in this collection are driven by a few items with many authors. Raising the minimum shared items to two or three removes most such clusters.</li>
+<li>The ties describe the annotated bibliography, which lists what the volume editors chose to annotate. They describe collaboration in this corpus, not in the research literature at large.</li>
+<li>Names are matched as written after the reviewed variants of section 5 are applied. Two people with the same name become one author, and one person written in two ways not yet in the table becomes two, which splits or joins groups wrongly. The name-variant table is the place to correct this.</li>
+<li>Organisations that the parser could not tell from people (section 5) appear as authors; an organisation listed beside people is tied to them like any other author.</li>
+<li>{co_withauth:,} items is the base for all shares on the page; the {N - co_withauth} items with no named author are not counted.</li>
+</ul>
 </div>"""
     with open(os.path.join(SITE, "methodology.html"), "w", encoding="utf-8") as f:
         f.write(page(f"Methodology · {TITLE}", body, 0, "methodology", scripts=HERE_JS))
@@ -514,6 +665,7 @@ def main():
     volume_pages()
     item_pages()
     search_page()
+    coauthor_page()
     about_page()
     methodology_page()
     open(os.path.join(SITE, ".nojekyll"), "w").close()

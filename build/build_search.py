@@ -54,8 +54,8 @@ def have_java():
     return subprocess.run(["java", "-version"], capture_output=True).returncode == 0
 
 
-def main():
-    require = "--require" in sys.argv
+def main(argv=None):
+    require = "--require" in (sys.argv[1:] if argv is None else argv)
     if not (have_java() and shutil.which("ant")):
         msg = "Java and Apache Ant are needed for staticSearch."
         if require:

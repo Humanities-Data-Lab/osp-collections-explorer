@@ -273,4 +273,14 @@
     }
   }
   update();
+
+  /* Test hook only: browsers inline this script as a plain <script>, where `module` is undefined and this does nothing. */
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = {
+      fold: fold, esc: esc, params: params, selected: selected, yearRange: yearRange, current: current, onSearchDone: onSearchDone,
+      people: people, contextHtml: contextHtml, snippet: snippet, card: card, sorted: sorted, renderResults: renderResults,
+      decorateCounts: decorateCounts, barList: barList, tally: tally, renderCharts: renderCharts, update: update,
+      getState: function () { return state; }, getHits: function () { return hits; }, getSch: function () { return Sch; }
+    };
+  }
 })();
