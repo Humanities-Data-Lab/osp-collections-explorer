@@ -124,7 +124,10 @@ class SnapshotRules(unittest.TestCase):
                 self.assertEqual(set(w), {"status", "doi", "title", "subtitle", "container", "year", "type", "publisher", "authors", "editors"}, doi)
             else:
                 self.assertIn("ra", w)
-        data = scratch.read_json(os.path.join(REPO, "build", "dataset.json"))
+        root, build = scratch.make_scratch()
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        scratch.run_parse(build)                                       # dataset.json is generated, never committed
+        data = scratch.read_json(os.path.join(build, "dataset.json"))
         dois = {i["doi"].lower() for i in data["items"] if i["doi"]}
         self.assertEqual(set(snap["works"]), dois)
 
