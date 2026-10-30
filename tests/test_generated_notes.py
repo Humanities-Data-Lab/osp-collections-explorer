@@ -212,7 +212,7 @@ class RenderShowsNotes(unittest.TestCase):
         self.assertTrue("claude-sonnet-5-5" in t)
         self.assertIn(min(n["generated_at"] for n in notes).replace("T", " ").replace("Z", " UTC"), t)
         self.assertIn(max(n["generated_at"] for n in notes).replace("T", " ").replace("Z", " UTC"), t)
-        section = t[t.index('id="generated"'):]
+        section = t[t.index('id="generated"'):t.index('id="crossref"')]
         self.assertEqual(section.count('<a href="items/'), len(notes))
         pr = sum(1 for n in notes if n["basis"] == "page-read")
         self.assertIn(f"{len(notes) - pr} are of that kind and {pr} are", section)
@@ -233,7 +233,7 @@ class RenderShowsNotes(unittest.TestCase):
         with mock.patch.dict(self.render.DS, {"meta": meta}):
             self.render.methodology_page()
         t = self.text("methodology.html")
-        self.assertTrue("Model: none." in t[t.index('id="generated"'):])
+        self.assertTrue("Model: none." in t[t.index('id="generated"'):t.index('id="crossref"')])
         self.render.main()
 
 

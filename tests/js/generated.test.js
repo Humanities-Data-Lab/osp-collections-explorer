@@ -36,3 +36,21 @@ test("generated: the card shows the note after the 'no annotation' line for an u
   assert.ok(none > 0 && note > none);
   assert.ok(card.indexOf('<ul class="tags"') > note);
 });
+
+test("crossref: a corrected item's card carries a labelled tag naming the fields", () => {
+  const h = makeApp({ items: [] });
+  const card = h.api.card(item("a", { crossref: { status: "corrected", fields: ["authors", "kind"] } }));
+  assert.ok(card.includes('<li class="tag cr" title="Corrected from Crossref: authors, kind">Corrected from Crossref</li>'));
+  assert.ok(card.indexOf("Corrected from Crossref</li>") < card.indexOf('<li class="tag vol">') + 1000);
+});
+
+test("crossref: other statuses, no check and an escaped field list add no tag or a safe one", () => {
+  const h = makeApp({ items: [] });
+  for (const status of ["matched", "not-registered", "different-work"]) {
+    assert.ok(!h.api.card(item("a", { crossref: { status, fields: [] } })).includes("Corrected from Crossref"), status);
+  }
+  assert.ok(!h.api.card(item("a", { crossref: null })).includes("Corrected from Crossref"));
+  assert.ok(!h.api.card(item("a")).includes("Corrected from Crossref"));
+  const odd = h.api.card(item("a", { crossref: { status: "corrected", fields: ['a"b'] } }));
+  assert.ok(odd.includes('title="Corrected from Crossref: a&quot;b"'));
+});

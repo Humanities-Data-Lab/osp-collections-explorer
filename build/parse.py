@@ -9,6 +9,8 @@ import os
 import re
 import unicodedata
 
+import reconcile
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKIP_CHAPTERS = re.compile(r"/(Introduction|Abstract|Executive Summary)$")
 LIST_PAGES = re.compile(r"/(Complete Alphabetical List of References|Alphabetical List of References|References)$")
@@ -462,6 +464,29 @@ def main():
             it["author_recovery"] = {"basis": rec["basis"], "evidence": rec["evidence"], "checked": rec["checked"], "note": rec["note"]}
             recovery_log.append({"id": it["id"], "title": it["title"], "authors": it["authors"], "basis": rec["basis"],
                                  "evidence": rec["evidence"], "note": rec["note"]})
+    # Cross-check every item that has a DOI against the Crossref snapshot (build/raw/crossref.json, written by crossref.py).
+    # Applied after identifiers are made (an item with a DOI is identified by it), and before the final sort. The original
+    # values stay in item["crossref"]["changes"]. Skipped when there is no snapshot.
+    crossref = {"fetched": "", "items_with_doi": 0, "status": {}}
+    cr_path = os.path.join(HERE, "raw", "crossref.json")
+    if os.path.exists(cr_path):
+        with open(cr_path, encoding="utf-8") as f:
+            snap = json.load(f)
+        crossref["fetched"] = snap["fetched"]
+        for it in items:
+            if not it["doi"]:
+                continue
+            work = snap["works"].get(it["doi"].lower())
+            if work is None:
+                anomalies.append({"type": "crossref-not-fetched", "text": it["doi"]})
+                continue
+            res = reconcile.reconcile(it, work, lambda n: canonical_name(n, alias, used_alias))
+            res["checked"] = snap["fetched"]
+            res["evidence"] = "https://api.crossref.org/works/" + it["doi"]
+            it["crossref"] = res
+            reconcile.apply(it, res)
+            crossref["items_with_doi"] += 1
+            crossref["status"][res["status"]] = crossref["status"].get(res["status"], 0) + 1
     # Descriptive notes written by a language model for items whose source gives no annotation (build/generated_notes.json).
     # They are kept apart from the source annotation, which stays empty, and are always shown with their model, time and basis.
     notes_path = os.path.join(HERE, "generated_notes.json")
@@ -502,6 +527,7 @@ def main():
             "source_fetched": raw["fetched"], "licence": raw["rights"],
             "author_recovery": recovery_log,
             "generated_notes": note_log,
+            "crossref": crossref,
             "corrections": [{"match": c["match"], "reason": c["reason"], "applied": applied.get(c["match"], 0)} for c in corrections],
             "name_variants": [{"name": g["name"], "variants": g["variants"], "reason": g["reason"],
                                "applied": sum(used_alias.get(v, 0) for v in g["variants"])} for g in name_variants],

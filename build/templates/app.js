@@ -89,6 +89,9 @@
     var h = hits ? hits.get(it.id) : null;
     var vols = it.volumes.map(function (v) { return '<li class="tag vol">' + esc(v) + "</li>"; }).join("");
     var topics = it.topics.map(function (t) { return '<li class="tag">' + esc(t) + "</li>"; }).join("");
+    if (it.crossref && it.crossref.status === "corrected") {
+      topics = '<li class="tag cr" title="Corrected from Crossref: ' + esc(it.crossref.fields.join(", ")) + '">Corrected from Crossref</li>' + topics;
+    }
     var href = it.doi ? "https://doi.org/" + it.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, "") : it.url;
     var links = href ? '<a href="' + esc(href) + '" rel="noopener">Open source ' + (it.doi ? "(DOI)" : "(link)") + "</a>" : "";
     var by = people(it.authors, "") || people(it.editors, it.editors.length > 1 ? " (eds.)" : " (ed.)") || "No named author";

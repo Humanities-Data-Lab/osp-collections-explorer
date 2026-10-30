@@ -148,6 +148,15 @@ class MainOrder(unittest.TestCase):
     def test_refresh_fetches_first(self):
         self.assertEqual(self.run_main(["--refresh"])[0], ("fetch",))
 
+    def test_refresh_crossref_parses_fetches_then_parses_again(self):
+        calls = self.run_main(["--refresh-crossref"])
+        self.assertEqual(calls[:3], [("parse",), ("crossref", ["--refresh"]), ("parse",)])
+        self.assertEqual(calls[3:], [("anomalies", False), ("render",), ("xhtml",), ("build_search", [])])
+
+    def test_both_refreshes_fetch_the_wiki_first(self):
+        calls = self.run_main(["--refresh", "--refresh-crossref"])
+        self.assertEqual([c[0] for c in calls[:4]], ["fetch", "parse", "crossref", "parse"])
+
     def test_flags_are_passed_on(self):
         calls = self.run_main(["--accept-anomalies", "--require-search"])
         self.assertIn(("anomalies", True), calls)

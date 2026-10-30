@@ -27,7 +27,9 @@ def make_scratch(prefix="osp-test-"):
         if os.path.isfile(src) and name.endswith(KEEP_SUFFIX) and name not in ("dataset.json", "validation.json"):
             shutil.copy(src, dest)
     shutil.copytree(os.path.join(BUILD, "templates"), os.path.join(dest, "templates"))
-    shutil.copy(os.path.join(BUILD, "raw", "pages.json"), os.path.join(dest, "raw", "pages.json"))
+    for name in ("pages.json", "crossref.json"):
+        if os.path.exists(os.path.join(BUILD, "raw", name)):
+            shutil.copy(os.path.join(BUILD, "raw", name), os.path.join(dest, "raw", name))
     return root, dest
 
 

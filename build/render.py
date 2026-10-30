@@ -130,6 +130,51 @@ def note_label(g):
             "It is not part of the Open Scholarship Press annotation and can contain errors.")
 
 
+CROSSREF_LABELS = {
+    "corrected": "Corrected from Crossref",
+    "matched": "Agrees with Crossref",
+    "not-registered": "DOI not held by Crossref",
+    "different-work": "DOI points to a different work",
+}
+
+
+def change_text(v):
+    return "; ".join(v) if isinstance(v, list) else str(v)
+
+
+def kept_text(k, it):
+    if k["reason"] == "authors-fewer":
+        return f'authors: Crossref lists {len(k["crossref"])} against the volume\'s {len(it["authors"])}, so the volume\'s longer list was kept'
+    if k["reason"] == "authors-reordered":
+        return "authors: Crossref gives the same names in another order or form, so the volume's spelling was kept"
+    return f'title: Crossref words it differently ({k["crossref"]}), so the volume\'s title was kept'
+
+
+def crossref_fact(it):
+    """The note on an item page about its Crossref check, or None when the item has no DOI."""
+    cr = it.get("crossref")
+    if not cr:
+        return None
+    when = e(cr["checked"])
+    link = f' <a href="{e(cr["evidence"])}">Crossref record</a>.'
+    if cr["status"] == "corrected":
+        rows = "".join(f'<li>{e(c["field"].replace("kind", "type of work"))}: now {e(change_text(c["to"]))}; the volume listing gave {e(change_text(c["from"]) or "nothing")}</li>' for c in cr["changes"])
+        out = f'This record takes its values from Crossref, the source of truth for items with a DOI (record fetched {when}). The citation as listed, further down, is unchanged.<ul>{rows}</ul>{link}'
+    elif cr["status"] == "matched":
+        out = f'Checked against Crossref (record fetched {when}); the record already agrees with it.{link}'
+    elif cr["status"] == "not-registered":
+        ra = cr.get("ra")
+        out = (f'Crossref holds no record of this DOI (checked {when}). It is registered with {e(ra)}.' if ra else
+               f'Crossref holds no record of this DOI, and the DOI does not exist (checked {when}); the address in the volume may contain a typing error.')
+    else:
+        out = (f'The DOI resolves at Crossref (record fetched {when}) to a different work: {e(cr["crossref_title"])}'
+               f'{(" by " + e("; ".join(cr["crossref_authors"]))) if cr["crossref_authors"] else ""}. '
+               'Nothing in this record was taken from it. The DOI in the volume may identify a containing book or contain an error.' + link)
+    if cr.get("kept"):
+        out += "<br />Kept as the volume lists them: " + "; ".join(e(kept_text(k, it)) for k in cr["kept"]) + "."
+    return out
+
+
 def short_cit(it):
     names = it["authors"] or it["editors"]
     a = ", ".join(names[:3]) + (" et al." if len(names) > 3 else "")
@@ -148,12 +193,14 @@ def write_data():
         json.dump(out, f, ensure_ascii=False, indent=1)
     with open(os.path.join(SITE, "data", "items.csv"), "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["id", "authors", "editors", "volume_editors", "contributors", "year", "title", "container", "type", "url", "doi", "volumes", "chapters", "sections", "topics", "annotation_source", "annotation", "citation_as_listed", "author_recovery_basis", "generated_note", "generated_note_basis", "generated_note_model", "generated_note_at", "generated_note_evidence"])
+        w.writerow(["id", "authors", "editors", "volume_editors", "contributors", "year", "title", "container", "type", "url", "doi", "volumes", "chapters", "sections", "topics", "annotation_source", "annotation", "citation_as_listed", "author_recovery_basis", "generated_note", "generated_note_basis", "generated_note_model", "generated_note_at", "generated_note_evidence", "crossref_status", "crossref_changed_fields", "crossref_checked"])
         for it in ITEMS:
             w.writerow([it["id"], "; ".join(it["authors"]), "; ".join(it["editors"]), "; ".join(it["container_editors"]), "; ".join(it["contributors"]), it["year"] or "", it["title"], it["container"], it["kind"], it["url"], it["doi"],
                         "; ".join(it["volumes"]), "; ".join(it["chapters"]), "; ".join(it["sections"]), "; ".join(it["topics"]),
                         "; ".join(it["annotation_source"]), it["annotation"], it["citation"], (it.get("author_recovery") or {}).get("basis", ""),
-                        *[(it.get("generated_note") or {}).get(k, "") for k in ("text", "basis", "model", "generated_at", "evidence")]])
+                        *[(it.get("generated_note") or {}).get(k, "") for k in ("text", "basis", "model", "generated_at", "evidence")],
+                        (it.get("crossref") or {}).get("status", ""), "; ".join(c["field"] for c in (it.get("crossref") or {}).get("changes", [])),
+                        (it.get("crossref") or {}).get("checked", "")])
     with open(os.path.join(SITE, "data", "validation.json"), "w", encoding="utf-8") as f:
         json.dump(VAL, f, ensure_ascii=False, indent=1)
     readme = f"""# Data model, {TITLE}
@@ -174,6 +221,7 @@ Files: items.json (full records, volumes, lexicon), items.csv (flat table), vali
 - title, container (journal, book or publisher text), kind (Journal article, Book chapter, Book or report, Report or web resource; guessed from citation form), url, doi.
 - citation: the citation exactly as listed in the first volume where it appears; variants: alternate listings from other volumes.
 - annotation: the annotation text (longest version when an item appears in several volumes). Empty when the source has none.
+- crossref: present on items with a DOI. status (matched, corrected, not-registered or different-work), changes (for a corrected item: field, from, to, with the value the volume listed in from; the item itself holds Crossref's value), kept (where a guard kept the volume's value: field, reason, and Crossref's value), checked (date of the Crossref snapshot), evidence (the Crossref address). For different-work, crossref_title and crossref_authors show what the DOI points to; for not-registered, ra names the registration agency (empty when the DOI does not exist). In items.csv: crossref_status, crossref_changed_fields, crossref_checked. See section 18 of the Methodology page.
 - generated_note: present only on items whose source annotation is empty and for which a descriptive note was generated by a language model. An object with text, basis ("page-read" or "citation-only"), evidence (the address read), model and generated_at (UTC). It is never merged into annotation. In items.csv the same values are in the generated_note_* columns.
 - topics: terms from the lexicon below that occur in title or annotation (case-insensitive pattern match, so a hit signals presence of the term, not a judgement of subject).
 - annotation_source: the meaning of the marker symbols that precede the entry in its volume (for example annotations drawn from earlier bibliographies).
@@ -201,7 +249,8 @@ def index_page():
     slim = []
     for it in ITEMS:
         slim.append({**{k: it[k] for k in ("id", "authors", "editors", "container_editors", "contributors", "year", "title", "container", "kind", "url", "doi", "citation", "annotation",
-                                            "topics", "annotation_source", "volumes", "chapters", "sections")}, "generated_note": it.get("generated_note")})
+                                            "topics", "annotation_source", "volumes", "chapters", "sections")}, "generated_note": it.get("generated_note"),
+                     "crossref": ({"status": it["crossref"]["status"], "fields": [c["field"] for c in it["crossref"]["changes"]]} if it.get("crossref") else None)})
     data = {"items": slim, "volumes": [{"slug": v["slug"], "title": v["title"], "entries": v["entries"]} for v in VOLS], "topics": TOPICS}
     blob = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     pre = "".join(f'<li><a href="items/{it["id"]}.html">{e(short_cit(it))}</a></li>' for it in ITEMS)
@@ -288,6 +337,8 @@ def ss_meta(it):
         out.append(m("Year", "date", str(it["year"])))
     out += [m("Author", "feat", a) for a in it["authors"]]
     out += [m("Editor", "feat", a) for a in it["editors"] + it["container_editors"]]
+    if it.get("crossref"):
+        out.append(m("Crossref check", "desc", CROSSREF_LABELS[it["crossref"]["status"]]))
     return "\n" + "\n".join(out)
 
 
@@ -319,6 +370,9 @@ def item_pages():
             facts.append(("Author recovered", e(RECOVERY_LABELS[rec["basis"]]) + ". " + e(rec["note"]) +
                           ' <a href="' + e(rec["evidence"]) + '">Evidence</a>'))
         facts += [("Year", e(it["year_label"])), ("Type", e(it["kind"]))]
+        cf = crossref_fact(it)
+        if cf:
+            facts.append(("Crossref check", cf))
         if it["container"]:
             facts.append(("Published in", e(it["container"])))
         if href:
@@ -394,7 +448,7 @@ def about_page():
 </div>
 <table class="data"><thead><tr><th scope="col">Volume</th><th scope="col">Entries parsed</th><th scope="col">Lines in its reference list</th><th scope="col">Wiki revision</th></tr></thead><tbody>{vrows}</tbody></table>
 <div class="prose"><p>Parsed counts exceed reference-list counts where entries repeat across sections of a volume or the list is partial. Items shared by several volumes are merged: {DS["meta"]["raw_entries"]:,} listed entries become {N:,} unique items.</p>
-<h2>Source irregularities found</h2><p>These are reported, not repaired. For the items without an annotation, the Methodology page (<a href="methodology.html#generated">section 17</a>) records the short labelled notes that a language model added; the source annotation itself stays empty.</p></div>
+<h2>Source irregularities found</h2><p>These are reported, not repaired. For the items without an annotation, the Methodology page (<a href="methodology.html#generated">section 17</a>) records the short labelled notes that a language model added; the source annotation itself stays empty. Section 18 records the decision to treat Crossref as the source of truth for DOIs, and the items it changed.</p></div>
 <table class="data"><thead><tr><th scope="col">Kind</th><th scope="col">Where</th><th scope="col">Detail</th></tr></thead><tbody>{arows}</tbody></table>
 <div class="prose"><h2>Endings principles in practice</h2></div>
 <table class="data"><thead><tr><th scope="col">Principle</th><th scope="col">How this site meets it</th></tr></thead><tbody>{erows}</tbody></table>
@@ -549,6 +603,18 @@ def methodology_page():
     gn_last = max((g["generated_at"] for g in gn), default="")
     gn_rows = "".join(f'<tr><td><a href="items/{g["id"]}.html">{e(g["title"][:90])}</a></td><td>{e(g["basis"])}</td><td>{e(g["generated_at"].replace("T", " ").replace("Z", " UTC"))}</td></tr>' for g in gn)
     n_noann = sum(1 for it in ITEMS if not it["annotation"])
+    cr_meta = DS["meta"].get("crossref", {"fetched": "", "items_with_doi": 0, "status": {}})
+    cr_items = [it for it in ITEMS if it.get("crossref")]
+    cr_fixed = [it for it in cr_items if it["crossref"]["status"] == "corrected"]
+    cr_fields = Counter(c["field"] for it in cr_fixed for c in it["crossref"]["changes"])
+    cr_kept = Counter(k["reason"] for it in cr_items for k in it["crossref"].get("kept", []))
+    cr_rows = "".join(f'<tr><td><a href="items/{it["id"]}.html">{e((it["title"] or it["citation"])[:80])}</a></td><td>{e(c["field"].replace("kind", "type of work"))}</td>'
+                      f'<td>{e(change_text(c["from"])[:120])}</td><td>{e(change_text(c["to"])[:160])}</td></tr>' for it in cr_fixed for c in it["crossref"]["changes"])
+    cr_other_rows = "".join(
+        f'<tr><td><a href="items/{it["id"]}.html">{e((it["title"] or it["citation"])[:80])}</a></td><td>{e(it["doi"])}</td><td>' +
+        (e("Resolves to a different work: " + it["crossref"]["crossref_title"][:100]) if it["crossref"]["status"] == "different-work" else
+         e("Not held by Crossref; registered with " + it["crossref"]["ra"]) if it["crossref"]["ra"] else e("Not held by Crossref; the DOI does not exist")) + "</td></tr>"
+        for it in cr_items if it["crossref"]["status"] in ("different-work", "not-registered"))
     n_ed = sum(1 for it in ITEMS if it["editors"])
     n_ce = sum(1 for it in ITEMS if it["container_editors"])
     n_contrib = sum(1 for it in ITEMS if it["contributors"])
@@ -569,7 +635,7 @@ def methodology_page():
 <li><a href="#citations">4. Reading a citation</a></li><li><a href="#authors">5. Deciding who the authors and editors are</a></li><li><a href="#types">6. Deciding the type of work</a></li>
 <li><a href="#dupes">7. Deciding that two entries are the same item</a></li><li><a href="#ids">8. Identifiers and addresses</a></li><li><a href="#topics">9. Deciding topics</a></li>
 <li><a href="#origin">10. Annotation origin</a></li><li><a href="#search">11. How search and filters decide</a></li><li><a href="#charts">12. What the charts count</a></li>
-<li><a href="#checks">13. Checks and what they cannot show</a></li><li><a href="#limits">14. Limits and cautions</a></li><li><a href="#repro">15. Reproducing and changing the method</a></li><li><a href="#coauthorship">16. Co-authorship</a></li><li><a href="#generated">17. Generated descriptive notes</a></li></ul></nav>
+<li><a href="#checks">13. Checks and what they cannot show</a></li><li><a href="#limits">14. Limits and cautions</a></li><li><a href="#repro">15. Reproducing and changing the method</a></li><li><a href="#coauthorship">16. Co-authorship</a></li><li><a href="#generated">17. Generated descriptive notes</a></li><li><a href="#crossref">18. Crossref as the source of truth for DOIs</a></li></ul></nav>
 <div class="prose">
 <h2 id="scope">1. Scope and sources</h2>
 <p>The unit of analysis is the annotated bibliography entry: one cited work with an annotation written by the Open Scholarship Press authors. The explorer reads seven volumes from the <a href="https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections">Open Scholarship Press Collections</a> hub on English Wikibooks: Community, Connection, Policy, Training, Knowledge Mobilization in the Humanities, Engaging Knowledge Diversity, and Engaging Platforms in Open Scholarship.</p>
@@ -608,7 +674,7 @@ def methodology_page():
 <h2 id="types">6. Deciding the type of work</h2>
 <p>Type is inferred from the citation's form, because the wiki does not record it:</p>
 <ul><li><strong>Book chapter</strong>: a quoted title followed by "In" and a book title.</li><li><strong>Journal article</strong>: a quoted title followed by a venue that contains a number (volume or issue), unless it starts with Report, Working, Policy or White.</li><li><strong>Report or web resource</strong>: a quoted title that fits neither, or an undated item.</li><li><strong>Book or report</strong>: an italic title with no quoted title.</li></ul>
-<p>This is a rough guide. A chapter in an edited volume without "In" will be called an article, and a book may be called a report. Treat the type filter as a convenience, not a catalogue record.</p>
+<p>This is a rough guide. A chapter in an edited volume without "In" will be called an article, and a book may be called a report. Treat the type filter as a convenience, not a catalogue record. For items with a DOI the type is taken from Crossref (section 18).</p>
 {table(["Type", "Items"], kind_rows)}
 <h2 id="dupes">7. Deciding that two entries are the same item</h2>
 <p>The same work appears in several volumes, often with different wording and with different links (a DOI in one volume, the publisher or an archive page in another). Two entries are the same item when they share any one of: the same DOI (after dashes typed in place of hyphens are corrected); the same web address (ignoring http, www and a trailing slash); or the same title plus year, where the title has at least 25 letters and digits after accents, capitals and punctuation are ignored. Entries that match on none of these stay separate, even if a person would call them the same work.</p>
@@ -698,6 +764,43 @@ def methodology_page():
 <li>The notes were written once for this edition. A rebuild reuses them as stored and does not write them again.</li>
 </ul>
 {table(["Item", "Basis", "Generated"], gn_rows)}
+<h2 id="crossref">18. Crossref as the source of truth for DOIs</h2>
+<p>{cr_meta["items_with_doi"]} items carry a DOI. <strong>Decision (maintainer, 29 October 2026): for an item that has a DOI, Crossref is the source of truth for its bibliographic facts.</strong> Where the Crossref record of the same work differs from the way a volume lists it, this site shows Crossref's value, and keeps the volume's own value beside it. {len(cr_fixed)} records were changed on this basis. Each is marked on its record page, in the data, in the "Crossref check" filter of Explore and Search, and in the table at the end of this section.</p>
+<h3>Source and procedure</h3>
+<ul>
+<li>Source: the public Crossref REST API (<code>api.crossref.org/works/&lt;DOI&gt;</code>), read on {e(cr_meta["fetched"])} by <code>build/crossref.py</code>. The part of each reply that the check reads (title and subtitle, year, type of work and the author list) is kept in <code>build/raw/crossref.json</code>, so a rebuild needs no network and gives the same result, as with the wiki text (section 2). A DOI that Crossref does not hold is looked up at doi.org to find which agency registered it.</li>
+<li>The decision is carried out by <code>build/reconcile.py</code>, which the parser applies after item identifiers are made. An item with a DOI is identified by it, so a change never alters an address. A DOI that is in the data but not in the snapshot stops the build.</li>
+<li>Same work: Crossref's record is used only when it is for the same work as the item. The titles must agree (equal, one a leading part of the other, or at least half of their words shared), or one author surname must be shared with years no more than two apart. Otherwise the DOI is reported and nothing is taken from it.</li>
+</ul>
+<h3>What takes Crossref's value</h3>
+<ul>
+<li>Authors: Crossref's list, with names written as "Given Family", a lone initial given its full stop, and the reviewed name-variant table (section 5) applied so that a person keeps one spelling across the site. It also fills in authors where the volume names none.</li>
+<li>Title: Crossref's title and subtitle, with markup, a leading chapter number and stray spacing around the colon removed.</li>
+<li>Year: Crossref's year (its earliest publication date for the work). The volume's year, which is often the print year of an article that appeared online earlier, is kept in the change record.</li>
+<li>Type of work: the site guesses it from the citation (section 6), and Crossref states it. A work is re-typed when Crossref gives journal article, book chapter, book, monograph, edited book, reference book, report or posted content.</li>
+<li>Not touched: the citation as listed (shown on every record page), the annotation, the topics, the venue text, the DOI itself and the editors. Crossref's journal or book title was not substituted for the venue text because that text also carries volume, issue and page numbers.</li>
+</ul>
+<h3>Where the volume's value is kept</h3>
+<p>Three guards keep the volume's value where taking Crossref's would destroy information. Each guard is recorded on the record page and in the data (<code>crossref.kept</code>), and the counts are given below.</p>
+<ul>
+<li>Fewer authors ({cr_kept.get("authors-fewer", 0)} items): Crossref lists fewer authors than the volume. The longer list is kept, since Crossref's list is the incomplete one (some deposits name only one of several authors).</li>
+<li>Names turned round ({cr_kept.get("authors-reordered", 0)} items): Crossref has the same words in another order, as when it files a given name as a family name. The volume's spelling is kept.</li>
+<li>Different title wording ({cr_kept.get("title-different", 0)} items): the two titles share too few words (for example a chapter that Crossref files under the title of its containing book, or "Introduction"). The match then rests on the authors alone, so the title is not taken.</li>
+</ul>
+<h3>Result</h3>
+<p>{cr_meta["status"].get("matched", 0)} items already agreed with Crossref; {len(cr_fixed)} were changed ({e(", ".join(f"{v} {k.replace('kind', 'type of work')}" for k, v in cr_fields.most_common()))}); {cr_meta["status"].get("different-work", 0)} DOIs resolve to a different work and {cr_meta["status"].get("not-registered", 0)} are not held by Crossref, and for these nothing was changed. The original value of every changed field is kept in the data (<code>crossref.changes</code>, field <code>from</code>).</p>
+<h3>Limits</h3>
+<ul>
+<li>Crossref is compiled from what publishers deposit. It contains errors, spacing slips, capitalisation that differs from the published work and, at times, a title worded differently from the one on the page. Under this decision such errors are carried into the record when the guards above do not catch them; the table below lists every change so that they can be reviewed, and the volume's original value is always recoverable.</li>
+<li>Titles that Crossref writes in sentence case replace titles that the volumes write in title case.</li>
+<li>A DOI that points to a different work is most often the DOI of the containing book where the volume cites a chapter. These items keep the volume's information, are marked as such, and are listed below for the editors of the volumes to review. Where a DOI does not exist at all, the address in the wiki probably contains a typing error.</li>
+<li>DOIs held by DataCite and other agencies (data sets, repository records) are outside Crossref and were not checked further.</li>
+<li>Only items with a DOI can be treated this way; {len(ITEMS) - cr_meta["items_with_doi"]} items have none.</li>
+</ul>
+<h3>Items changed to Crossref's values</h3>
+{table(["Item", "Field", "Listed in the volume", "Now"], cr_rows)}
+<h3>DOIs that were not used</h3>
+{table(["Item", "DOI", "Result"], cr_other_rows)}
 </div>"""
     with open(os.path.join(SITE, "methodology.html"), "w", encoding="utf-8") as f:
         f.write(page(f"Methodology · {TITLE}", body, 0, "methodology", scripts=HERE_JS))

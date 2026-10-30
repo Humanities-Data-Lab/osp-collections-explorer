@@ -10,6 +10,7 @@ Searching and filtering use [staticSearch](https://endings.uvic.ca/staticSearch/
 
     python3 build/build.py             # rebuild from the committed snapshot (build/raw/pages.json)
     python3 build/build.py --refresh   # re-fetch Wikibooks first, then rebuild
+    python3 build/build.py --refresh-crossref   # re-fetch the Crossref record of every DOI first, then rebuild
 
 Requires Python 3.9+. The full-text Search page also needs Java and Apache Ant (the build skips it with a notice when they are missing; CI requires it). Output goes to `site/`; open `site/index.html` directly or serve the folder.
 The build stops on parser anomalies not listed in `build/known_anomalies.json`; review them, then rerun with `--accept-anomalies`.
@@ -27,12 +28,13 @@ or on manual dispatch. All links are relative, so the site works at a project su
 
 ## Layout
 
-- `build/fetch.py`, `parse.py`, `render.py`, `build_search.py`, `build.py`: pipeline
+- `build/fetch.py`, `crossref.py`, `reconcile.py`, `parse.py`, `render.py`, `build_search.py`, `build.py`: pipeline (`crossref.py` fetches, `reconcile.py` decides what Crossref may correct)
 - `build/staticSearch_config.xml`: configuration for [staticSearch](https://endings.uvic.ca/staticSearch/) (checkout pinned to v2.0.3 by tag and commit)
 - `build/generated_notes.json`: short descriptive notes written by a language model for items whose source has no annotation, each with its basis, evidence address, model and UTC time (applied by `parse.py`, shown with a label, never merged into the annotation)
 - `build/corrections.json`: named corrections of source typing errors, each with its reason
 - `tests/`: `test_*.py` (parser, fetcher, renderer, build orchestration, search step, repository guards) and `js/*.test.js` (both page scripts, run against a hand-written DOM stub)
 - `build/templates/`: hand-written CSS and JavaScript (`app.js` for Explore, `coauthor.js` for Co-authorship), inlined into every page
 - `build/raw/pages.json`: snapshot of the wiki text with revision ids (commit this)
+- `build/raw/crossref.json`: snapshot of the Crossref record of every DOI (commit this)
 
 Data licence: CC BY-SA 4.0 (inherited from Wikibooks). Software licence: to be chosen by the maintainers.

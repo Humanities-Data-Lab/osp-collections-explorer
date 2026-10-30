@@ -1,7 +1,9 @@
-"""Build the site. Usage: python3 build/build.py [--refresh] [--accept-anomalies] [--require-search]
+"""Build the site. Usage: python3 build/build.py [--refresh] [--refresh-crossref] [--accept-anomalies] [--require-search]
 
 --refresh re-fetches the wiki text (network); the default uses the committed
 build/raw/pages.json so a release can be rebuilt identically.
+--refresh-crossref re-fetches the Crossref record of every DOI into build/raw/crossref.json (network),
+after a first parse that finds the DOIs; the default uses the committed snapshot.
 The build stops if the parser reports anomalies not listed in
 build/known_anomalies.json (Endings 3.1: relentless validation).
 """
@@ -62,6 +64,9 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     if "--refresh" in argv:
         step("fetch").main()
+    if "--refresh-crossref" in argv:
+        step("parse").main()                      # finds the DOIs
+        step("crossref").main(["--refresh"])
     step("parse").main()
     check_anomalies("--accept-anomalies" in argv)
     step("render").main()
