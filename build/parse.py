@@ -15,6 +15,7 @@ LIST_PAGES = re.compile(r"/(Complete Alphabetical List of References|Alphabetica
 YEAR = re.compile(r"\b((?:1[5-9]|20)\d\d[a-z]?|n\.d\.)(?=[.,)\s])")
 BOLD = re.compile(r"^'''(.+?)'''[.\s]*$")
 URL = re.compile(r"https?://[^\s<>\"]+")
+NOTE_BASES = ("page-read", "citation-only")
 DOI = re.compile(r"10\.\d{4,9}/[^\s<>\"]+")
 
 # Controlled topic lexicon applied to annotation text. Matches are exposed as
@@ -461,6 +462,26 @@ def main():
             it["author_recovery"] = {"basis": rec["basis"], "evidence": rec["evidence"], "checked": rec["checked"], "note": rec["note"]}
             recovery_log.append({"id": it["id"], "title": it["title"], "authors": it["authors"], "basis": rec["basis"],
                                  "evidence": rec["evidence"], "note": rec["note"]})
+    # Descriptive notes written by a language model for items whose source gives no annotation (build/generated_notes.json).
+    # They are kept apart from the source annotation, which stays empty, and are always shown with their model, time and basis.
+    notes_path = os.path.join(HERE, "generated_notes.json")
+    notes = []
+    if os.path.exists(notes_path):
+        with open(notes_path, encoding="utf-8") as f:
+            notes = json.load(f)
+    by_id = {it["id"]: it for it in items}
+    note_log = []
+    for n in notes:
+        it = by_id.get(n["id"])
+        if it is None or it["annotation"] or "generated_note" in it:
+            anomalies.append({"type": "stale-generated-note", "text": n["id"]})
+            continue
+        if n["basis"] not in NOTE_BASES or not n["note"].strip() or not n["model"] or not n["generated_at"]:
+            anomalies.append({"type": "invalid-generated-note", "text": n["id"]})
+            continue
+        it["generated_note"] = {"text": n["note"], "basis": n["basis"], "evidence": n["evidence"], "model": n["model"], "generated_at": n["generated_at"]}
+        note_log.append({"id": it["id"], "title": it["title"] or it["citation"][:80], "basis": n["basis"], "evidence": n["evidence"],
+                         "model": n["model"], "generated_at": n["generated_at"]})
     items.sort(key=lambda x: (fold((x["authors"] or x["editors"] or [""])[0]), x["year"] or 0, fold(x["title"])))
     for e in items:
         for role in ("authors", "editors", "container_editors", "contributors"):
@@ -480,6 +501,7 @@ def main():
             "source": "https://en.wikibooks.org/wiki/Open_Scholarship_Press_Collections",
             "source_fetched": raw["fetched"], "licence": raw["rights"],
             "author_recovery": recovery_log,
+            "generated_notes": note_log,
             "corrections": [{"match": c["match"], "reason": c["reason"], "applied": applied.get(c["match"], 0)} for c in corrections],
             "name_variants": [{"name": g["name"], "variants": g["variants"], "reason": g["reason"],
                                "applied": sum(used_alias.get(v, 0) for v in g["variants"])} for g in name_variants],

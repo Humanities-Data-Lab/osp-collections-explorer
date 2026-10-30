@@ -29,6 +29,7 @@ or on manual dispatch. All links are relative, so the site works at a project su
 
 - `build/fetch.py`, `parse.py`, `render.py`, `build_search.py`, `build.py`: pipeline
 - `build/staticSearch_config.xml`: configuration for [staticSearch](https://endings.uvic.ca/staticSearch/) (checkout pinned to v2.0.3 by tag and commit)
+- `build/generated_notes.json`: short descriptive notes written by a language model for items whose source has no annotation, each with its basis, evidence address, model and UTC time (applied by `parse.py`, shown with a label, never merged into the annotation)
 - `build/corrections.json`: named corrections of source typing errors, each with its reason
 - `tests/`: `test_*.py` (parser, fetcher, renderer, build orchestration, search step, repository guards) and `js/*.test.js` (both page scripts, run against a hand-written DOM stub)
 - `build/templates/`: hand-written CSS and JavaScript (`app.js` for Explore, `coauthor.js` for Co-authorship), inlined into every page

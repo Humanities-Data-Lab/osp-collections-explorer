@@ -88,7 +88,9 @@ test("the address parameter names the script reads are the ones staticSearch and
 test("the data fields app.js reads are written by index_page", () => {
   const slim = /for k in \(([^)]*)\)/.exec(INDEX);
   assert.ok(slim, "found the slim item field list");
-  const written = new Set([...slim[1].matchAll(/"(\w+)"/g)].map((m) => m[1]));
+  const stmt = INDEX.slice(INDEX.indexOf("slim.append("), INDEX.indexOf("data = {\"items\": slim"));
+  const written = new Set([...slim[1].matchAll(/"(\w+)"/g)].map((m) => m[1]).concat([...stmt.matchAll(/, "(\w+)": it\.get\(/g)].map((m) => m[1])));
+  assert.ok(written.has("generated_note"), "index_page writes generated_note");
   const read = new Set([...APP.matchAll(/\b(?:it|x|y)\.(\w+)/g)].map((m) => m[1]));
   const own = new Set(["_title", "length", "id"]);   // set by the script itself, or not data
   ["id", "authors", "editors", "year", "title", "container", "kind", "url", "doi", "citation", "annotation", "topics", "volumes"].forEach((f) => assert.ok(written.has(f), "index_page writes " + f));

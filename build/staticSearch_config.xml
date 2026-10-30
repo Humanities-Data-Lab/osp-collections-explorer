@@ -19,6 +19,8 @@
     <!-- Navigation, header and footer repeat on every page and are not indexed. -->
     <rule weight="0" match="script | style | header | footer | nav"/>
     <rule weight="0" match="div[contains-token(@class,'cite')]"/>
+    <!-- Notes written by a language model are labelled and left out of the index: a search matches only the volume authors' words. -->
+    <rule weight="0" match="div[contains-token(@class,'generated')]"/>
     <rule weight="3" match="h1"/>
   </rules>
 </config>

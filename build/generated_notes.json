@@ -1,0 +1,677 @@
+[
+ {
+  "id": "02c6092831",
+  "title": "The Library as Knowledge Broker",
+  "note": "A book chapter by Sara de Jong and Saskia Wieringa in the edited volume Teaching Gender with Libraries and Archives (Central European University Press, 2014). The title indicates that it treats the library as a broker of knowledge.",
+  "basis": "citation-only",
+  "evidence": "",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "07bb56aad8",
+  "title": "Understanding collaborative interactions in relation to research impact in social sciences and human",
+  "note": "A meta-ethnography of qualitative studies on collaboration between researchers and stakeholders in the social sciences and humanities, and how such collaboration relates to research impact. It reports that differences between partner organizations hinder partnership and that brokers can help create a shared space for mutual understanding, though that space can also allow conflict.",
+  "basis": "page-read",
+  "evidence": "https://academic.oup.com/rev/article/30/2/179/6067083",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "08a96714bd",
+  "title": "Reframing the Public Humanities: The Tensions, Challenges & Potentials of a More Expansive Endeavor",
+  "note": "An essay in Daedalus by two directors of state humanities councils, who assess the so-called crisis of the humanities from outside the academy. It argues that public humanities work is thriving and diversifying, and calls for bridge-building between academics and communities grounded in shared power and cocreation.",
+  "basis": "page-read",
+  "evidence": "https://www.amacad.org/publication/reframing-public-humanities-tensions-challenges-potentials-more-expansive-endeavor",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "0add8d7033",
+  "title": "Putting Impact into Context: The Janus Face of the Public Value of Arts and Humanities Research",
+  "note": "A journal article by Paul Benneworth in Arts and Humanities in Higher Education (2015); the title indicates it concerns the context of research impact and the public value of arts and humanities research.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1177/1474022214533893",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "0b157b4aac",
+  "title": "Transforming Research into Art: The Making and Staging of My English Tongue, My Irish Heart, a Resea",
+  "note": "A 2017 article in Irish Studies Review by Liam Harte. The title indicates it discusses the making and staging of a research-based drama, My English Tongue, My Irish Heart, about the Irish in Britain, and the transformation of research into art.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1080/09670882.2016.1266733",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "0c0d03c81c",
+  "title": "The University in the Global Age: Reconceptualising the Humanities and Social Sciences for the Twent",
+  "note": "A 2020 article in Educational Philosophy & Theory. The title indicates that it concerns the place of the university in a global age and a rethinking of the humanities and social sciences for the twenty-first century.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1080/00131857.2020.1752186",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "0d7283f946",
+  "title": "Defining the Public Humanities » Public Humanities Hub",
+  "note": "A web page from the University of British Columbia's Public Humanities Hub that defines public humanities in two ways: as humanities work prioritizing public engagement, and as scholarship that shares the power to create knowledge with diverse publics. It also states the Hub's orientation toward interdisciplinarity, decolonization and human rights.",
+  "basis": "page-read",
+  "evidence": "https://publichumanities.ubc.ca/about/what-are-the-public-humanities/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "0fb8577665",
+  "title": "REF 2021 Impact Case Study Database",
+  "note": "The searchable database of impact case studies submitted to the UK Research Excellence Framework in 2021. Entries can be filtered by institution, unit of assessment, impact type, location and underpinning research subject, and the case studies can be downloaded.",
+  "basis": "page-read",
+  "evidence": "https://results2021.ref.ac.uk/impact",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "13351e3a69",
+  "title": "Research Assessment in the Humanities",
+  "note": "An edited volume from Springer (2016) titled Research Assessment in the Humanities; the title indicates it concerns how humanities research is evaluated.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1007/978-3-319-29016-4",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "1e9b00e29d",
+  "title": "Commercialisation of Research Activities in the Humanities, Arts and Social Sciences in Australia",
+  "note": "A 2005 report by Toss Gascoigne and Jenni Metcalfe for the Council for the Humanities, Arts and Social Sciences. The title indicates it concerns the commercial uses of research activities in the humanities, arts and social sciences in Australia.",
+  "basis": "citation-only",
+  "evidence": "https://apo.org.au/node/69488",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "23fba87ece",
+  "title": "Impact at the AHRC",
+  "note": "An undated document by Claire Edwards, hosted by Manchester Metropolitan University. The title indicates that it concerns research impact in relation to the Arts and Humanities Research Council.",
+  "basis": "citation-only",
+  "evidence": "https://www.mmu.ac.uk/media/mmuacuk/content/documents/english/cell/AHRC--impact_Manchester.pdf",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "28ae49fd25",
+  "title": "The Humanities Must Engage Global Grand Challenges",
+  "note": "A 2016 article in The Chronicle of Higher Education; the title indicates it argues that the humanities should engage global grand challenges.",
+  "basis": "citation-only",
+  "evidence": "https://www.chronicle.com/article/the-humanities-must-engage-global-grand-challenges/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "2a8bf6170a",
+  "title": "Mendeley Readership Altmetrics for the Social Sciences and Humanities: Research Evaluation and Knowl",
+  "note": "A journal article by Ehsan Mohammadi and Mike Thelwall in the Journal of the Association for Information Science and Technology; the title indicates it concerns Mendeley readership altmetrics for the social sciences and humanities in relation to research evaluation and knowledge flows.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1002/asi.23071",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "2ae3d5c1eb",
+  "title": "Understanding Researchers’ Twitter Uptake, Activity and Popularity—an Analysis of Applied Research i",
+  "note": "A journal article in Scientometrics (2022); the title indicates it analyzes researchers' uptake of and activity on Twitter, with a focus on applied research in Germany.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1007/s11192-022-04569-2",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "325ccf19f2",
+  "title": "Productivity through innovation: Applied research at Canadian colleges and institutes",
+  "note": "A 2011 publication from the Association of Canadian Community Colleges. The title indicates it concerns applied research at Canadian colleges and institutes and its relation to productivity and innovation.",
+  "basis": "citation-only",
+  "evidence": "https://canadacommons.ca/artifacts/1193908/productivity-through-innovation/1747032/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "364b0ae1c7",
+  "title": "Making a Public Ph.D",
+  "note": "An article by Leonard Cassuto in The Chronicle of Higher Education, published February 13, 2012. The title indicates that it concerns the making of a public Ph.D.",
+  "basis": "citation-only",
+  "evidence": "https://www.chronicle.com/article/making-a-public-ph-d/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "39da10fc6c",
+  "title": "Imagining the Future of Knowledge Mobilization : Perspectives from UNESCO Chairs",
+  "note": "A report from UNESCO, the Canadian Commission for UNESCO and the Social Sciences and Humanities Research Council of Canada; the title indicates it presents perspectives from UNESCO Chairs on the future of knowledge mobilization.",
+  "basis": "citation-only",
+  "evidence": "https://canadacommons.ca/artifacts/2366768/imagining-the-future-of-knowledge-mobilization/3387795/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "3b1937a142",
+  "title": "Measures of Quality and Impact in Publicly-Funded Humanities, Arts and Social Sciences Research",
+  "note": "A 2006 report by Jonathan Powles for the Council for the Humanities, Arts and Social Sciences (Australia); the title indicates it concerns measures of quality and impact in publicly funded humanities, arts and social sciences research.",
+  "basis": "citation-only",
+  "evidence": "https://apo.org.au/node/3414",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "3b6898e971",
+  "title": "What Makes Oral Literary History Different?",
+  "note": "A blog post by Deanna Fong and Mathieu Aubin on the SpokenWeb blog describing oral literary history as a field. It presents the field as aiming to include voices missing from archives, attending to how stories are told, and following ethical principles such as shared authority and ongoing care for interviewees.",
+  "basis": "page-read",
+  "evidence": "https://spokenweb.ca/what-makes-oral-literary-history-different/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "403d29187e",
+  "title": "Digital Humanities Futures, Open Social Scholarship, and Engaged Publics",
+  "note": "A chapter in The Bloomsbury Handbook to the Digital Humanities (2022), edited by James O'Sullivan. The title indicates it concerns the futures of digital humanities, open social scholarship and engaged publics.",
+  "basis": "citation-only",
+  "evidence": "",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "4862c1fcf8",
+  "title": "Is Innovation a Useful Concept for Arts and Humanities Research?",
+  "note": "This article asks whether innovation is a useful concept for arts and humanities research. It argues that innovation, understood broadly to include non-economic change, can illuminate the relation between these fields and society, and it uses a historical case study at the University of Oslo to examine tensions over indicators, infrastructure and quality.",
+  "basis": "page-read",
+  "evidence": "https://api.crossref.org/works/10.1177/1474022214533890",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "4b32b75c8a",
+  "title": "Closed, Open, Stopped: Indigenous Sovereignty and the Possibility of Decolonial Digital Humanities",
+  "note": "A chapter in the edited collection Future Horizons: Canadian Digital Humanities (University of Ottawa Press, 2023); the title indicates it concerns Indigenous sovereignty and the possibility of decolonial digital humanities.",
+  "basis": "citation-only",
+  "evidence": "https://press.uottawa.ca/en/9780776640068/future-horizons/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "4bd273714d",
+  "title": "Multiple Models for Library Outreach Initiatives",
+  "note": "A 2003 journal article in The Reference Librarian; the title indicates it concerns multiple models for library outreach initiatives.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1300/J120v39n82_04",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "4cdc1963e7",
+  "title": "‘Impact’, ‘Value’ and ‘Bad Economics’: Making Sense of the Problem of Value in the Arts and Humaniti",
+  "note": "A journal article by Eleonora Belfiore in Arts and Humanities in Higher Education (2015); the title indicates it concerns the problem of value, and the idea of impact, in the arts and humanities.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1177/1474022214531503",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "4d3af21742",
+  "title": "Knowledge Mobilization of Human–Computer Interaction for Development Research: Core Issues and Domai",
+  "note": "A 2020 article in Information Technology for Development by Judy Van Biljon. The title indicates it addresses knowledge mobilization in human-computer interaction for development research, including core issues and domain questions.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1080/02681102.2020.1767022",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "4fb60be385",
+  "title": "Assessing the Impact of Arts and Humanities Research at the University of Cambridge",
+  "note": "A 2010 technical report from the RAND Corporation. The title indicates that it assesses the impact of arts and humanities research at the University of Cambridge.",
+  "basis": "citation-only",
+  "evidence": "https://www.rand.org/pubs/technical_reports/TR816.html",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "546513b06a",
+  "title": "The State of the Humanities circa 2022",
+  "note": "An essay published by the American Academy of Arts and Sciences that summarizes data on the humanities inside and outside academia, including degree trends, the academic job market and public engagement. It argues that the field should learn from earlier cycles of crisis and build lasting institutions linking academic and public humanities.",
+  "basis": "page-read",
+  "evidence": "https://www.amacad.org/publication/state-humanities-circa-2022",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "58cabfc802",
+  "title": "Fantastic Futures? Cli-Fi, Climate Justice, and Queer Futurity",
+  "note": "An article arguing that climate change fiction is a concern with climate futures drawing on many genres, and that distinguishing it from fantasy reflects gendered and racial assumptions. Reading David Mitchell's The Bone Clocks, it links mixed-genre writing to queer ecology and an ethics of care for distant others.",
+  "basis": "page-read",
+  "evidence": "https://muse.jhu.edu/article/669720",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "63e0dac5de",
+  "title": "Arts and Humanities Academics in Schools: Mapping the Pedagogical Interface",
+  "note": "A book by Geoff Baker and Andrew Fisher published by Bloomsbury (2013); the title indicates it maps the pedagogical interface between arts and humanities academics and schools.",
+  "basis": "citation-only",
+  "evidence": "http://ebookcentral.proquest.com/lib/uvic/detail.action?docID=674914",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "65dbe73668",
+  "title": "Creating Knowledge with the Public: Disrupting the Expert/Audience Hierarchy",
+  "note": "An essay by four authors, published in Dædalus in 2022, presenting community-centred public history, in which community members help create knowledge instead of serving as an audience. It develops the approach through a Baltimore case study of the 2015 uprising, involving a crowdsourced archive, student oral histories, story circles and films.",
+  "basis": "page-read",
+  "evidence": "https://www.amacad.org/publication/creating-knowledge-public-disrupting-expertaudience-hierarchy",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "660fb0ef06",
+  "title": "Introduction",
+  "note": "The introduction to The Humanities and Public Life, an edited volume from Fordham University Press (2014), pages 1 to 14. The volume title indicates a concern with the relation between the humanities and public life.",
+  "basis": "citation-only",
+  "evidence": "https://www.jstor.org/stable/j.ctt13x04xg.4",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "671de0bd68",
+  "title": "Sustaining Knowledge Exchange and Research Impact in the Social Sciences and Humanities: Investing i",
+  "note": "A 2013 article in Evidence & Policy; the title indicates it concerns knowledge exchange and research impact in the social sciences and humanities, and investment in knowledge broker roles in UK universities.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1332/174426413X662644",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "687180b79b",
+  "title": "Enhancing Research Impact in Heritage Conservation",
+  "note": "A 2018 journal article in Studies in Conservation; the title indicates it concerns ways of enhancing research impact in heritage conservation.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1080/00393630.2018.1491719",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "754aafa6a8",
+  "title": "Hidden Connections: Knowledge Exchange between the Arts and Humanities and the Private, Public and T",
+  "note": "A report for the Arts and Humanities Research Council (2011) by Alan Hughes, Michael Kitson and Jocelyn Probert; the title indicates it concerns knowledge exchange between the arts and humanities and private, public and third sector organizations.",
+  "basis": "citation-only",
+  "evidence": "https://www.cbr.cam.ac.uk/wp-content/uploads/2020/08/specialreport-hiddenconnections.pdf",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "75a491667e",
+  "title": "Leading the World: The Economic Impact of UK Arts and Humanities Research",
+  "note": "A 2009 report from the Arts and Humanities Research Council. The title indicates it concerns the economic impact of arts and humanities research in the United Kingdom.",
+  "basis": "citation-only",
+  "evidence": "https://apo.org.au/node/69772",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "7a5f0bd6f2",
+  "title": "The Social Sciences and the Humanities – Use It Don’t Lose It",
+  "note": "A 2011 report published by DEA. The title indicates that it concerns the social sciences and the humanities and the importance of putting them to use.",
+  "basis": "citation-only",
+  "evidence": "https://www.datocms-assets.com/22590/1586629647-the-social-sciences-and-the-humanities.pdf",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "7eb145c20f",
+  "title": "Analysing Co-Creation in Theory and Practice: A Systemic Review of the SSH Impact Literature",
+  "note": "A 2017 working paper from the ACCOMPLISSH project asking what research impact means in the social sciences and humanities and how it might be measured and stimulated. It reviews impact assessment models, impact pathways and the co-creation literature, and offers guiding principles for impact-focused research projects.",
+  "basis": "page-read",
+  "evidence": "https://vbn.aau.dk/en/publications/analysing-co-creation-in-theory-and-in-practice-a-systemic-review",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "84b35731b2",
+  "title": "Re/Turning the Gaze: Unsettling Settler Logics through Multimedia Storytelling",
+  "note": "A journal article in Feminist Media Studies; the title indicates it concerns unsettling settler logics through multimedia storytelling.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1080/14680777.2019.1707256",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "8572d205bb",
+  "title": "Why We Need to Talk About Indigenous Literature and the Digital Humanities",
+  "note": "A web post by David Gaertner (2017) on the Novel Alliances site; the title indicates it concerns Indigenous literature and the digital humanities.",
+  "basis": "citation-only",
+  "evidence": "https://novelalliances.com/2017/01/26/indigenous-literature-and-the-digital-humanities/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "873198d85f",
+  "title": "Informal Collaborations between Social Sciences and Humanities Researchers and Non-Academic Partners",
+  "note": "A 2014 article in Science and Public Policy on informal collaborations between social sciences and humanities researchers and non-academic partners, drawing on data from the Spanish Council for Scientific Research. It reports that informal ties are more common than formal ones and argues that policy should not rely only on formal indicators or commercialization.",
+  "basis": "page-read",
+  "evidence": "https://academic.oup.com/spp/article-lookup/doi/10.1093/scipol/sct075",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "877332c272",
+  "title": "The Importance of Humanities Interfaces for Research and Its Social Futures",
+  "note": "A 2020 article in Communication Research and Practice. The title indicates that it concerns the importance of humanities interfaces for research and its social futures.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1080/22041451.2020.1886965",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "8acd182a65",
+  "title": "The Work of Art in the World: Civic Agency and Public Humanities",
+  "note": "A 2014 book from Duke University Press; the title indicates it concerns art, civic agency and the public humanities.",
+  "basis": "citation-only",
+  "evidence": "",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "8de74badf8",
+  "title": "Shaping Metrics for HEI Cultural Engagement - Knowledge Transfer",
+  "note": "A 2008 unpublished project report from the University of Glasgow on an AHRC-funded project that sought to identify the activities counted as knowledge transfer and cultural engagement in higher education and to propose ways of evaluating them.",
+  "basis": "page-read",
+  "evidence": "https://eprints.gla.ac.uk/85817/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "9053d098a4",
+  "title": "The Nature, Scale and Beneficiaries of Research Impact: An Initial Analysis of Research Excellence F",
+  "note": "A report by King's College London and Digital Science (2015); the title indicates it is an initial analysis of the nature, scale and beneficiaries of research impact in the 2014 Research Excellence Framework impact case studies.",
+  "basis": "citation-only",
+  "evidence": "http://dera.ioe.ac.uk/22540/1/Analysis_of_REF_impact.pdf",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "916fee91b3",
+  "title": "An Open Social Scholarship Path for the Humanities",
+  "note": "A 2022 article in the Journal of Electronic Publishing by Alyssa Arbuckle, Ray Siemens and colleagues. The title indicates it outlines an open social scholarship path for the humanities.",
+  "basis": "citation-only",
+  "evidence": "https://journals.publishing.umich.edu/jep/article/id/1973/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "9bdfee789d",
+  "title": "Research Evaluation and the Assessment of Public Value",
+  "note": "This article examines how arts and humanities research is evaluated for public value. It distinguishes three purposes of evaluation: allocating resources, improving policies and programmes, and controlling public spending. It argues that capturing the diffuse value of these fields calls for formative methods that support researchers' social engagement.",
+  "basis": "page-read",
+  "evidence": "https://api.crossref.org/works/10.1177/1474022214534381",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "9c587fdc0e",
+  "title": "Cultural Value, Measurement and Policy Making",
+  "note": "A 2015 article in Arts and Humanities in Higher Education; the title indicates it concerns cultural value, its measurement and policy making.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1177/1474022214533892",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "a1cb25ae85",
+  "title": "Are Sciences Essential and Humanities Elective? Disentangling Competing Claims for Humanities’ Resea",
+  "note": "A 2015 journal article in Arts and Humanities in Higher Education; the title indicates it examines competing claims about the public value of humanities research, set against the sciences.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1177/1474022214534081",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "a6b665f00d",
+  "title": "Where the Humanities Live",
+  "note": "A journal article by Edward L. Ayers in Daedalus (2009); the title indicates it concerns where the humanities are practised or found.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1162/daed.2009.138.1.24",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "a9c8a2ed6c",
+  "title": "Co-Designing for a Better Future: Re-Imagining the Modernist Dream at Park Hill, Sheffield",
+  "note": "A chapter in the edited volume Co-Producing Research, published by Bristol University Press. The title indicates it concerns co-design and the reimagining of the modernist Park Hill development in Sheffield.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.2307/j.ctv80cccs.12",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "aaeb28f3f6",
+  "title": "The Storytellers",
+  "note": "A web page from the Social Sciences and Humanities Research Council, dated January 31, 2023, titled The Storytellers. The title indicates that it concerns storytelling; its content was not confirmed.",
+  "basis": "citation-only",
+  "evidence": "https://www.sshrc-crsh.gc.ca/society-societe/storytellers-jai_une_histoire_a_raconter/index-eng.aspx",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "ac0643bbdf",
+  "title": "Opening the Humanities to New Fields & New Voices",
+  "note": "An essay on building public humanities work for an increasingly immigrant, Latino and multiracial U.S. public, centred on the Boyle Heights Museum in East Los Angeles, a university-based history project. It argues that the future of humanities fields depends on reaching and diversifying their publics.",
+  "basis": "page-read",
+  "evidence": "https://www.amacad.org/publication/opening-humanities-new-fields-new-voices",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "b1750ba7c2",
+  "title": "Mobilizing Knowledge via Documentary Filmmaking — Is the Academy Ready?",
+  "note": "An article describing the authors' integration of documentary filmmaking into their research methods. It argues that film can be an alternative form of scholarly work and a way to share knowledge beyond the university, and encourages more dynamic, multimodal uses of digital video.",
+  "basis": "page-read",
+  "evidence": "http://id.erudit.org/iderudit/1033547ar",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "b31dbd8630",
+  "title": "Bibliometric Monitoring of Research Performance in the Social Sciences and the Humanities: A Review",
+  "note": "A journal article by Anton J. Nederhof in Scientometrics (2006), described in its title as a review of bibliometric monitoring of research performance in the social sciences and the humanities.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1007/s11192-006-0007-2",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "b3dd34da86",
+  "title": "Grassroots Museums & the Changing Landscape of the Public Humanities",
+  "note": "A 2022 Dædalus essay tracing the history of grassroots, community-based museums since the 1960s. It argues that these museums built new relationships with their communities and broadened the public humanities, focusing on three museums founded in 1967 in New York, Washington and Seattle.",
+  "basis": "page-read",
+  "evidence": "https://www.amacad.org/publication/grassroots-museums-changing-landscape-public-humanities",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "b3f0cd1e86",
+  "title": "Flows of Knowledge, Expertise and Influence: A Method for Assessing Policy and Practice Impacts from",
+  "note": "This article presents a method for assessing policy and practice impacts of social science research. It proposes proxy indicators of contact between researchers and research users, traces flows of knowledge, expertise and influence in a mainly qualitative study, and identifies five factors that can strengthen such exchange.",
+  "basis": "page-read",
+  "evidence": "https://academic.oup.com/rev/article-lookup/doi/10.3152/095820208X331720",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "b4ed2954ee",
+  "title": "IMPACT-EV. Report 3. Impact Evaluation of FP6 (Last Call) and FP7 SSH Research Projects",
+  "note": "A 2015 report from the IMPACT-EV project assessing 439 social sciences and humanities projects funded under the last FP6 call and FP7. It examines scientific, political and social impact and the strengthening of the European Research Area, with general observations and examples of high-impact projects.",
+  "basis": "page-read",
+  "evidence": "https://zenodo.org/record/1041950",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "b99f509e37",
+  "title": "Bringing Your Humanities Research to Life with Podcasting",
+  "note": "A web article by Sonja Johnston, published on 9 March 2023 by the University of Toronto Faculty of Arts & Science; the title indicates it concerns using podcasting to present humanities research.",
+  "basis": "citation-only",
+  "evidence": "https://www.humanities.utoronto.ca/news/bringing-your-humanities-research-life-podcasting",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "c665af2928",
+  "title": "Doing Public Humanities",
+  "note": "An edited book by Susan Smulyan published by Routledge (2020) titled Doing Public Humanities; the title indicates it concerns the practice of public humanities work.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.4324/9781003058038",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "c90d4a2c3e",
+  "title": "‘That Full Complement of Riches’: The Contributions of the Arts, Humanities and Social Sciences to t",
+  "note": "A 2004 report from the British Academy. Its foreword states that the review assembles arguments and evidence on the contributions of the arts, humanities and social sciences to the nation's wealth, and aims to raise policy makers' awareness of their role in a knowledge-based society and economy.",
+  "basis": "page-read",
+  "evidence": "https://www.thebritishacademy.ac.uk/documents/1909/Full-Complement-Riches-Contributions-Arts-Humanities-Social-Sciences-Nation-Wealth.pdf",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "ca8399e7ad",
+  "title": "Reflecting on Academic Service-Learning Research in a University Intensive English Program",
+  "note": "A 2018 publication from Brill. The title indicates that it reflects on academic service-learning research in a university intensive English program.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1163/9789004392472_010",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "cb409a6574",
+  "title": "Afterthoughts: The Walls",
+  "note": "A chapter titled Afterthoughts: The Walls in the edited volume Higher Education and Civic Engagement: Comparative Perspectives (Palgrave Macmillan, 2012); the volume title indicates a concern with higher education and civic engagement.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1057/9781137074829_15",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "cf3c86b8f6",
+  "title": "Knowledge Transfer Activities in Social Sciences and Humanities: Explaining the Interactions of Rese",
+  "note": "A 2014 journal article in Research Policy; the title indicates it concerns knowledge transfer activities in the social sciences and humanities and the interactions of research groups with non-academic agents.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1016/j.respol.2013.12.004",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "d49ebb681a",
+  "title": "Civic Engagement and the Arts and Humanities: A UK Perspective",
+  "note": "A journal article by Tony Gallagher in Arts and Humanities in Higher Education (2015); the title indicates it offers a United Kingdom perspective on civic engagement and the arts and humanities.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.1177/1474022215583948",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "d4c617f1ea",
+  "title": "Teaching Law to Laymen: The Case of the Subject “Law & Culture” in Humanities Studies",
+  "note": "A 2013 publication from the Universitat de Girona (Institut de Ciències de l'Educació Josep Pallach). The title indicates it concerns teaching law to non-specialists through the subject Law & Culture in humanities studies.",
+  "basis": "citation-only",
+  "evidence": "https://dugi-doc.udg.edu/handle/10256/8309",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "d519b50858",
+  "title": "Knowledge Mobilisation Builds Local Research Collaborations for Social Innovation",
+  "note": "A 2009 article in Evidence & Policy. The title indicates that it concerns knowledge mobilization as a means of building local research collaborations for social innovation.",
+  "basis": "citation-only",
+  "evidence": "http://www.ingentaconnect.com/content/tpp/ep/2009/00000005/00000003/art00002",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "d53d27a67f",
+  "title": "The Necessity of Public Humanities",
+  "note": "A research poster by Dawkins titled The Necessity of Public Humanities; the title indicates it concerns the public humanities.",
+  "basis": "citation-only",
+  "evidence": "https://ir.lib.uwo.ca/usri/usri2021/researchoutputshowcase/259/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "db8dcbf681",
+  "title": "The knowledge transfer from the Humanities: possibilities and characteristics",
+  "note": "A 2008 journal article in Arbor; the title indicates it concerns the possibilities and characteristics of knowledge transfer from the humanities.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.3989/arbor.2008.i732.211",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "e13b9a9702",
+  "title": "Enabling Public Scholars through Faculty Development",
+  "note": "An article by Christopher Adamson in Pop! Public. Open. Participatory. describing a faculty development series on public scholarship run at the University of South Dakota during the pandemic. It reports on the sessions offered and proposes a working definition of public scholarship as collaborative knowledge creation with communities.",
+  "basis": "page-read",
+  "evidence": "https://popjournal.ca/issue03/adamson",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "e4249a79f5",
+  "title": "Introduction: ‘Tracing the Movement of Ideas.’",
+  "note": "An introductory chapter by Alyssa Arbuckle, Aaron Mauro and Daniel Powell in the open anthology Social Knowledge Creation in the Humanities. The title indicates it concerns tracing the movement of ideas.",
+  "basis": "citation-only",
+  "evidence": "https://web.archive.org/web/20210624002546/https://ntmrs-skc.itercommunity.org/index.html%3Fp=108.html",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ },
+ {
+  "id": "e9923f9488",
+  "title": "The Economic Role and Influence of the Social Sciences and Humanities: A Conjecture",
+  "note": "A 2008 report by The Impact Group for the Social Sciences and Humanities Research Council. The title indicates that it offers a conjecture about the economic role and influence of the social sciences and humanities.",
+  "basis": "citation-only",
+  "evidence": "https://canadacommons.ca/artifacts/1219446/the-economic-role-and-influence-of-the-social-sciences-and-humanities/1772523/",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:24Z"
+ },
+ {
+  "id": "ea7e344914",
+  "title": "Awareness of Humanities, Arts and Social Science (HASS) Research Is Related to Patterns of Citizens’",
+  "note": "A 2015 article in Social Sciences; the title indicates it concerns the relationship between awareness of humanities, arts and social science research and patterns of citizens' community and cultural engagement.",
+  "basis": "citation-only",
+  "evidence": "https://doi.org/10.3390/socsci4020313",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:02Z"
+ },
+ {
+  "id": "f08c2e736b",
+  "title": "Recognising the Value of the Arts and Humanities in a Time of Austerity",
+  "note": "A 2013 report listed by its repository as commissioned by HERA under the HEARAVALUE project; the title indicates it concerns recognising the value of the arts and humanities in a time of austerity.",
+  "basis": "citation-only",
+  "evidence": "https://arrow.tudublin.ie/cgi/viewcontent.cgi?article=1042&context=cserrep",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:38Z"
+ },
+ {
+  "id": "f0978826f3",
+  "title": "Scholarship in Public: Knowledge Creation and Tenure Policy in the Engaged University",
+  "note": "A work by Julie Ellison and Timothy K. Eatman; the title indicates it concerns scholarship in public, knowledge creation and tenure policy in the engaged university. The citation gives no venue or address.",
+  "basis": "citation-only",
+  "evidence": "",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:38:33Z"
+ },
+ {
+  "id": "f28e1e7e0e",
+  "title": "Arts-Based Approaches to Public Engagement with Research: Lessons from a Rapid Review",
+  "note": "A 2021 report from the RAND Corporation. The title indicates it presents lessons from a rapid review of arts-based approaches to public engagement with research.",
+  "basis": "citation-only",
+  "evidence": "https://www.rand.org/pubs/research_reports/RRA194-1.html",
+  "model": "claude-sonnet-5-5",
+  "generated_at": "2026-10-29T21:39:21Z"
+ }
+]
